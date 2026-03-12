@@ -906,6 +906,7 @@ function go(p){
   c.innerHTML='<div class="page">'+(map[p]||rDash)()+'</div>';
   c.scrollTop=0;
   updateMeta();
+  if(p==='patients')setTimeout(renderPaxTable,0);
 }
 
 // ═══════════════════════════ PANTALLAS ══════════════════════
@@ -1596,9 +1597,6 @@ function rRoles(){
 
 // ═══════════════════════════ INIT ════════════════════════════
 // Render pax table after content is injected (uses event delegation)
-document.getElementById('content').addEventListener('DOMNodeInserted',()=>{
-  if(PAGE==='patients')setTimeout(renderPaxTable,0);
-});
 buildSidebar();
 go('dashboard');
 </script>
