@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DentalOS — Consultorio Dental 2025</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8fafc;overflow:hidden;height:100vh;}
+.app{display:flex;height:100vh;}
+.sidebar{width:180px;background:#0f172a;display:flex;flex-direction:column;flex-shrink:0;}
+.sb-logo{padding:14px 13px 10px;border-bottom:1px solid #1e293b;}
+.sb-logo-name{font-size:13px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+.sb-logo-sub{font-size:8px;color:#334155;margin-top:2px;}
+.sb-nav{flex:1;padding:6px 0;overflow-y:auto;scrollbar-width:none;}
+.sb-nav::-webkit-scrollbar{display:none;}
+.nav-item{width:100%;display:flex;align-items:center;gap:9px;padding:8px 13px;border:none;background:transparent;color:#64748b;font-size:11px;cursor:pointer;text-align:left;transition:all .12s;}
+.nav-item.active{background:#2563eb;color:#fff;font-weight:700;}
+.nav-item:hover:not(.active){background:#1e293b;color:#94a3b8;}
+.nav-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.sb-user{padding:10px 12px;border-top:1px solid #1e293b;display:flex;align-items:center;gap:8px;}
+.user-av{width:26px;height:26px;border-radius:50%;background:#2563eb;color:#fff;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.hbar{height:42px;background:#fff;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0;}
+.content{flex:1;overflow-y:auto;background:#f8fafc;}
+.page{padding:16px;max-width:960px;}
+.row-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.page-title{font-size:17px;font-weight:800;color:#0f172a;letter-spacing:-.3px;}
+.page-sub{font-size:10px;color:#94a3b8;margin-top:2px;}
+.kgrid{display:grid;gap:9px;margin-bottom:12px;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+.kcard{border-radius:11px;padding:13px;}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;}
+.cp{padding:14px;}
+.ctitle{font-size:11px;font-weight:700;color:#0f172a;margin-bottom:10px;}
+.tcol{display:grid;grid-template-columns:3fr 2fr;gap:11px;}
+table{width:100%;border-collapse:collapse;}
+th{text-align:left;padding:6px 11px;font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;background:#f8fafc;border-bottom:1px solid #e2e8f0;}
+td{padding:7px 11px;font-size:10px;border-bottom:1px solid #f8fafc;color:#334155;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#f8fafc;}
+.chip{display:inline-block;padding:2px 7px;border-radius:99px;font-size:8px;font-weight:700;white-space:nowrap;}
+.c-blue{background:#dbeafe;color:#1d4ed8;}
+.c-green{background:#d1fae5;color:#065f46;}
+.c-amber{background:#fef9c3;color:#92400e;}
+.c-red{background:#fee2e2;color:#b91c1c;}
+.c-purple{background:#ede9fe;color:#6d28d9;}
+.c-gray{background:#f1f5f9;color:#475569;}
+.btn{padding:6px 12px;border-radius:7px;border:none;font-size:10px;font-weight:700;cursor:pointer;transition:opacity .1s;white-space:nowrap;}
+.btn:hover{opacity:.85;}
+.btn-p{background:#2563eb;color:#fff;}
+.btn-o{background:#fff;color:#334155;border:1px solid #e2e8f0;}
+.btn-g{background:#059669;color:#fff;}
+.btn-r{background:#dc2626;color:#fff;}
+.btn-a{background:#d97706;color:#fff;}
+.bar-bg{height:5px;border-radius:99px;background:#f1f5f9;}
+.bar-fill{height:5px;border-radius:99px;transition:width .3s;}
+.dark-box{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:12px;padding:16px;}
+.tab-bar{display:flex;gap:2px;background:#f1f5f9;padding:3px;border-radius:9px;width:fit-content;}
+.tab{padding:5px 12px;border-radius:6px;font-size:10px;cursor:pointer;color:#64748b;border:none;background:transparent;font-weight:500;}
+.tab.active{background:#fff;color:#0f172a;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.alert-bar{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:9px 13px;display:flex;gap:8px;align-items:flex-start;font-size:10px;color:#92400e;margin-bottom:11px;}
+.acc-row{border:1.5px solid #e2e8f0;border-radius:11px;margin-bottom:6px;overflow:hidden;}
+.acc-head{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;cursor:pointer;background:#fff;user-select:none;}
+.acc-head:hover{background:#fafafa;}
+.acc-body{padding:12px 13px;border-top:1px solid #f1f5f9;background:#fafafa;display:none;}
+.acc-body.open{display:block;}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:1000;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex!important;}
+.modal{background:#fff;border-radius:16px;padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.28);}
+.modal-title{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:3px;}
+.modal-sub{font-size:10px;color:#94a3b8;margin-bottom:18px;}
+.fg{margin-bottom:13px;}
+.fg label{display:block;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:8px 11px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-family:inherit;color:#0f172a;outline:none;background:#fff;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#2563eb;background:#fff;}
+.fg textarea{resize:vertical;min-height:64px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid #f1f5f9;}
+/* CALENDAR */
+.cal-wrap{overflow-x:auto;}
+.cal-grid{display:grid;grid-template-columns:44px repeat(6,1fr);min-width:560px;}
+.cal-head{height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;border-bottom:1px solid #e2e8f0;}
+.cal-hour{height:52px;display:flex;align-items:flex-start;padding:4px 5px 0 0;justify-content:flex-end;background:#fff;border-right:1px solid #f1f5f9;border-top:1px solid #f8fafc;}
+.cal-cell{height:52px;border-left:1px solid #f1f5f9;border-top:1px solid #f8fafc;position:relative;}
+.appt-block{position:absolute;inset:2px 3px;border-radius:6px;padding:3px 6px;cursor:pointer;overflow:hidden;border-left-width:3px;border-left-style:solid;}
+.flow-step{display:flex;align-items:stretch;}
+.flow-line{width:40px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.flow-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.flow-conn{width:2px;flex:1;min-height:16px;opacity:.22;}
+.flow-body{flex:1;padding-left:13px;padding-bottom:16px;}
+.flow-inner{background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:13px;}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;}
+.role-card{border-radius:13px;padding:14px;cursor:pointer;transition:transform .1s,box-shadow .1s;}
+.role-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08);}
+.perm-row{display:flex;align-items:flex-start;gap:6px;margin-bottom:5px;}
+.pcheck{width:13px;height:13px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff;flex-shrink:0;margin-top:1px;}
+/* TOAST */
+#toast{position:fixed;bottom:22px;right:22px;padding:11px 16px;border-radius:10px;font-size:11px;font-weight:600;z-index:9999;display:none;box-shadow:0 8px 28px rgba(0,0,0,.3);color:#fff;max-width:320px;line-height:1.4;}
+/* SEARCH */
+.srch{position:relative;}
+.srch input{padding:7px 10px 7px 29px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:10px;outline:none;font-family:inherit;width:220px;}
+.srch input:focus{border-color:#2563eb;}
+.srch::before{content:'🔍';position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-name">🦷 DentalOS</div>
+    <div class="sb-logo-sub">Consultorio Dental · 2025</div>
+  </div>
+  <div class="sb-nav" id="sb-nav"></div>
+  <div class="sb-user">
+    <div class="user-av">AD</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:#fff;">Dra. Andrea</div>
+      <div style="font-size:8px;color:#475569;">Titular · Admin</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="hbar">
+    <span style="font-size:10px;color:#94a3b8;">🏥 Consultorio Principal</span>
+    <span style="color:#e2e8f0;">|</span>
+    <span id="hdr-title" style="font-size:11px;font-weight:700;color:#334155;"></span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;gap:3px;padding:2px 9px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:99px;font-size:9px;font-weight:700;color:#059669;">
+        <div style="width:5px;height:5px;border-radius:50%;background:#059669;"></div>
+        <span id="reg-count">96 registros</span>
+      </div>
+      <button class="btn btn-o" style="font-size:9px;padding:3px 9px;" onclick="showLogin()">Salir</button>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODALES
+════════════════════════════════════════════════════════════ -->
+
+<!-- LOGIN -->
+<div class="modal-bg" id="m-login">
+  <div style="background:#fff;border-radius:16px;width:400px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4);">
+    <div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:28px 24px;">
+      <div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:4px;">🦷 DentalOS</div>
+      <div style="font-size:10px;color:#475569;">Consultorio Dental 2025 · Sistema de gestión</div>
+    </div>
+    <div style="padding:24px;">
+      <div class="fg"><label>Correo</label>
+        <input type="email" value="andrea@consultorio.mx" style="background:#f8fafc;" readonly>
+      </div>
+      <div class="fg"><label>Contraseña</label>
+        <input type="password" value="12345678" style="background:#f8fafc;" readonly>
+      </div>
+      <button class="btn btn-p" style="width:100%;padding:10px;font-size:12px;" onclick="closeModal('m-login')">Entrar al sistema →</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVA CITA -->
+<div class="modal-bg" id="m-cita">
+  <div class="modal">
+    <div class="modal-title">📅 Nueva cita</div>
+    <div class="modal-sub">Agendar en el consultorio</div>
+    <div class="frow">
+      <div class="fg"><label>Fecha</label><input type="date" id="c-fecha"></div>
+      <div class="fg"><label>Hora</label>
+        <select id="c-hora">
+          <option>08:00</option><option>08:30</option><option>09:00</option><option>09:30</option>
+          <option>10:00</option><option>10:30</option><option selected>11:00</option><option>11:30</option>
+          <option>12:00</option><option>13:00</option><option>14:00</option><option>15:00</option><option>16:00</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Paciente</label>
+      <input type="text" id="c-pac" placeholder="Nombre del paciente" list="dl-pax">
+      <datalist id="dl-pax"></datalist>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Tratamiento</label>
+        <select id="c-tipo">
+          <option value="CON">Consulta / Valoración</option>
+          <option value="EXT">Extracción dental</option>
+          <option value="IV">Sedación IV</option>
+          <option value="TXCA">Tx Conducto + Corona</option>
+          <option value="CA">Corona de Acero</option>
+          <option value="MESP">Mantenedor Espacio</option>
+          <option value="ORT">Ortodoncia</option>
+          <option value="REV">Revisión / Control</option>
+          <option value="UL">Limpieza Ultrasonido</option>
+          <option value="SF">Sellador de Fisuras</option>
+          <option value="TX CEL">Tratamiento Especial</option>
+        </select>
+      </div>
+      <div class="fg"><label>Duración (min)</label>
+        <select id="c-dur"><option>30</option><option>45</option><option selected>60</option><option>90</option><option>120</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Notas (opcional)</label><textarea id="c-notas" placeholder="Indicaciones especiales..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-cita')">Cancelar</button>
+      <button class="btn btn-p" onclick="saveCita()">📅 Guardar cita</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVO PACIENTE -->
+<div class="modal-bg" id="m-paciente">
+  <div class="modal">
+    <div class="modal-title">👥 Nuevo paciente</div>
+    <div class="modal-sub">Registrar en el sistema</div>
+    <div class="fg"><label>Nombre completo *</label><input type="text" id="p-nombre" placeholder="Nombre Apellido Apellido"></div>
+    <div class="frow">
+      <div class="fg"><label>Teléfono</label><input type="tel" id="p-tel" placeholder="55 xxxx xxxx"></div>
+      <div class="fg"><label>Edad</label><input type="number" id="p-edad" placeholder="Años" min="1" max="120"></div>
+    </div>
+    <div class="fg"><label>Correo electrónico (opcional)</label><input type="email" id="p-email" placeholder="correo@ejemplo.com"></div>
+    <div class="fg"><label>Motivo de primera consulta</label>
+      <select id="p-motivo">
+        <option value="CON">Consulta / Valoración general</option>
+        <option value="EXT">Extracción dental</option>
+        <option value="IV">Sedación IV</option>
+        <option value="TXCA">Tx Conducto + Corona</option>
+        <option value="ORT">Ortodoncia</option>
+        <option value="REV">Revisión / Control</option>
+        <option value="UL">Limpieza</option>
+      </select>
+    </div>
+    <div class="fg"><label>Notas / Alergias / Condiciones médicas</label>
+      <textarea id="p-notas" placeholder="Sin alergias conocidas, paciente sano..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-paciente')">Cancelar</button>
+      <button class="btn btn-p" onclick="savePaciente()">✓ Registrar paciente</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRAR COBRO -->
+<div class="modal-bg" id="m-cobro">
+  <div class="modal">
+    <div class="modal-title">💳 Registrar cobro</div>
+    <div class="modal-sub">Nuevo pago o abono de paciente</div>
+    <div class="fg"><label>Paciente *</label>
+      <input type="text" id="co-pac" placeholder="Nombre del paciente" list="dl-pax2">
+      <datalist id="dl-pax2"></datalist>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Fecha</label><input type="date" id="co-fecha"></div>
+      <div class="fg"><label>Mes</label>
+        <select id="co-mes">
+          <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+          <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+          <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Tratamiento</label>
+        <select id="co-tx" onchange="autoFillPrecio()">
+          <option value="CON">CON – Consulta</option>
+          <option value="EXT">EXT – Extracción</option>
+          <option value="IV">IV – Sedación IV</option>
+          <option value="TXCA">TXCA – Tx Conducto + Corona</option>
+          <option value="CA">CA – Corona de Acero</option>
+          <option value="MESP">MESP – Mantenedor Espacio</option>
+          <option value="ORT">ORT – Ortodoncia</option>
+          <option value="SF">SF – Sellador</option>
+          <option value="RES">RES – Resina</option>
+          <option value="REV">REV – Revisión</option>
+          <option value="DUR">DUR – Fluoruro</option>
+          <option value="UL">UL – Limpieza</option>
+          <option value="TX CEL">TX CEL – Tratamiento Especial</option>
+        </select>
+      </div>
+      <div class="fg"><label>Cantidad</label>
+        <input type="number" id="co-cant" value="1" min="1" onchange="recalcTotal()">
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Costo unitario ($)</label>
+        <input type="number" id="co-costo" placeholder="0" onchange="recalcTotal()">
+      </div>
+      <div class="fg"><label>Total cobro ($)</label>
+        <input type="number" id="co-total" placeholder="0" style="background:#f8fafc;" readonly>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Abono recibido ($) *</label>
+        <input type="number" id="co-abono" placeholder="0" onchange="recalcSaldo()">
+      </div>
+      <div class="fg"><label>Saldo pendiente ($)</label>
+        <input type="number" id="co-saldo" placeholder="0" style="background:#fff3f3;" readonly>
+      </div>
+    </div>
+    <div class="fg"><label>Forma de pago</label>
+      <select id="co-fpago">
+        <option value="E">💵 Efectivo</option>
+        <option value="TR">📱 Transferencia</option>
+        <option value="TC">💳 T. Crédito</option>
+        <option value="TD">💳 T. Débito</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-cobro')">Cancelar</button>
+      <button class="btn btn-g" onclick="saveCobro()">✓ Registrar cobro</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRAR EGRESO -->
+<div class="modal-bg" id="m-egreso">
+  <div class="modal">
+    <div class="modal-title">📉 Registrar egreso</div>
+    <div class="modal-sub">Gasto o pago del consultorio</div>
+    <div class="fg"><label>Concepto *</label>
+      <input type="text" id="e-concepto" placeholder="Ej: Renta junio, Insumos ProDent...">
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Categoría</label>
+        <select id="e-cat">
+          <option>RENTA</option><option>PAU</option><option>INSUMOS</option>
+          <option>LABORATORIO</option><option>GENERALES</option><option>ADMIN</option><option>OTRO</option>
+        </select>
+      </div>
+      <div class="fg"><label>Monto ($) *</label><input type="number" id="e-monto" placeholder="0"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Fecha</label><input type="date" id="e-fecha"></div>
+      <div class="fg"><label>Mes</label>
+        <select id="e-mes">
+          <option>Enero</option><option>Febrero</option><option>Marzo</option><option>Abril</option>
+          <option>Mayo</option><option>Junio</option><option>Julio</option><option>Agosto</option>
+          <option>Septiembre</option><option>Octubre</option><option>Noviembre</option><option>Diciembre</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Nota adicional (opcional)</label>
+      <textarea id="e-nota" placeholder="Proveedor, número de factura..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-egreso')">Cancelar</button>
+      <button class="btn btn-r" onclick="saveEgreso()">✓ Registrar egreso</button>
+    </div>
+  </div>
+</div>
+
+<!-- VER CITA DETALLE -->
+<div class="modal-bg" id="m-ver-cita">
+  <div class="modal" style="width:380px;">
+    <div id="m-ver-cita-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-ver-cita')">Cerrar</button>
+      <button class="btn btn-g" onclick="closeModal('m-ver-cita');openCobro()">💳 Registrar cobro</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTA CLÍNICA -->
+<div class="modal-bg" id="m-nota">
+  <div class="modal">
+    <div class="modal-title">📝 Nueva nota clínica</div>
+    <div class="modal-sub">Registro para el expediente de la paciente</div>
+    <div class="frow">
+      <div class="fg"><label>Tratamiento</label>
+        <select id="n-tx">
+          <option value="CON">CON – Consulta</option><option value="EXT">EXT – Extracción</option>
+          <option value="IV">IV – Sedación IV</option><option value="TXCA">TXCA – Tx Conducto</option>
+          <option value="CA">CA – Corona</option><option value="ORT">ORT – Ortodoncia</option>
+          <option value="REV">REV – Revisión</option><option value="TX CEL">TX CEL – Especial</option>
+        </select>
+      </div>
+      <div class="fg"><label>Abono ($)</label><input type="number" id="n-monto" value="0" placeholder="0"></div>
+    </div>
+    <div class="fg"><label>Nota clínica *</label>
+      <textarea id="n-texto" placeholder="Describe el procedimiento realizado, observaciones, próximos pasos..." style="min-height:90px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-nota')">Cancelar</button>
+      <button class="btn btn-p" onclick="saveNota()">✓ Guardar nota</button>
+    </div>
+  </div>
+</div>
+
+<!-- ABONO RÁPIDO -->
+<div class="modal-bg" id="m-abono">
+  <div class="modal" style="width:360px;">
+    <div class="modal-title">💰 Registrar abono</div>
+    <div class="modal-sub" id="m-abono-sub"></div>
+    <div class="fg"><label>Monto del abono ($) *</label><input type="number" id="ab-monto" placeholder="0"></div>
+    <div class="fg"><label>Forma de pago</label>
+      <select id="ab-fpago">
+        <option value="E">💵 Efectivo</option><option value="TR">📱 Transferencia</option>
+        <option value="TC">💳 T. Crédito</option><option value="TD">💳 T. Débito</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-o" onclick="closeModal('m-abono')">Cancelar</button>
+      <button class="btn btn-g" onclick="saveAbono()">✓ Confirmar abono</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ═══════════════════════════ HELPERS ════════════════════════
+const F=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',minimumFractionDigits:0}).format(n||0);
+const INI=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const AVC=[['#dbeafe','#1d4ed8'],['#d1fae5','#065f46'],['#ede9fe','#6d28d9'],['#fef9c3','#92400e'],
+           ['#fce7f3','#9d174d'],['#f0fdf4','#166534'],['#fef2f2','#b91c1c'],['#eff6ff','#1e40af']];
+const AV=(n,sz,i)=>{sz=sz||30;i=(i||0)%8;const[bg,fg]=AVC[i];
+  return`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:${bg};color:${fg};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:${Math.floor(sz*.34)}px;flex-shrink:0;">${INI(n)}</div>`;};
+const CH=(l,c='gray')=>`<span class="chip c-${c}">${l}</span>`;
+const PAL=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ec4899','#06b6d4','#f97316','#84cc16','#64748b','#0ea5e9'];
+const TX_PRICES={CON:800,EXT:600,IV:800,TXCA:2800,CA:1400,MESP:1400,ORT:1500,SF:800,RES:800,REV:400,DUR:100,UL:800,'TX CEL':3000};
+
+let _abonoTarget=null;
+
+function todayStr(){const d=new Date();return d.toISOString().split('T')[0];}
+function toast(msg,col='#059669'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=col;t.style.display='block';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.display='none',3200);
+}
+function openModal(id){const el=document.getElementById(id);el.style.display='flex';el.classList.add('open');}
+function closeModal(id){const el=document.getElementById(id);el.style.display='none';el.classList.remove('open');}
+function showLogin(){openModal('m-login');}
+
+// close modal on backdrop
+document.addEventListener('click',e=>{if(e.target.classList.contains('modal-bg'))closeModal(e.target.id);});
+
+// ═══════════════════════════ DATOS ══════════════════════════
+let PAGOS=[
+[1,'02/01','Maximo Raziel','IV',2,800,1600,1600,0,'E','Enero'],
+[2,'02/01','Angel Ceballos','IV',1,800,800,900,-100,'E Y TR','Enero'],
+[3,'02/01','Angel Ceballos','DUR',1,100,100,100,0,null,'Enero'],
+[4,'07/01','Alejandro Vega','DUR',1,400,400,400,0,'E','Enero'],
+[5,'07/01','Angel Mateo Hernandez','CON',1,800,800,800,0,'E','Enero'],
+[6,'07/01','Maria Campos','CON',1,800,800,800,0,'E','Enero'],
+[7,'07/01','Andrik Aguilera','EXT',1,2800,2800,2800,0,'E','Enero'],
+[8,'09/01','Luis Esteban Lechuga','MESP',1,1400,1400,1400,0,'TD','Enero'],
+[9,'09/01','Angel Leonel Rodriguez','EXT',2,600,1200,1200,0,'E','Enero'],
+[10,'09/01','Christian Jesus Vazquez','TXCA',2,2800,5600,5600,0,'TC','Enero'],
+[11,'14/01','Mia Torres','CON',1,800,800,800,0,'TC','Enero'],
+[12,'16/01','Andrik','SF',1,800,800,800,0,'E','Enero'],
+[13,'16/01','Maximo','IV',2,800,1600,1600,0,'E','Enero'],
+[14,'21/01','Genesis Alfaro','CON',1,800,800,800,0,'E','Enero'],
+[15,'21/01','Angel Leonel','EXT',1,600,600,600,0,'E','Enero'],
+[16,'21/01','Angel Leonel','IV',1,800,800,800,0,'E','Enero'],
+[17,'21/01','Melanie Munoz','CON',1,800,800,800,0,'E','Enero'],
+[18,'23/01','Andrik Eliam','TX CEL',1,3000,3000,3000,0,'E','Enero'],
+[19,'28/01','Alejandro Vega','ORT',1,1500,1500,1500,0,'TR','Enero'],
+[20,'28/01','Dante Bustos','EXT',4,600,2400,2400,0,'E','Enero'],
+[21,'28/01','Amelia Gonzalez','IV',1,800,800,800,0,'TC','Enero'],
+[22,'28/01','Angel Ceballos','REV',1,400,400,400,0,'E','Enero'],
+[23,'30/01','Maximo Raziel','IV',2,800,1600,1600,0,'E','Enero'],
+[24,'30/01','Alejandro','CON',1,800,800,800,0,'TC','Enero'],
+[25,'30/01','Melanie','CA',1,2200,2200,2200,0,'E','Enero'],
+[26,'30/01','Eric','CON',1,800,800,800,0,'TD','Enero'],
+[27,'30/01','Rommel','CON',1,800,800,800,0,'E','Enero'],
+[28,'04/02','Genesis','TXCA',1,2800,2800,2800,0,'E','Febrero'],
+[29,'04/02','Andrik','IV',1,2200,2200,2200,0,'E','Febrero'],
+[30,'06/02','Leonidas','CON',1,800,800,800,0,'TR','Febrero'],
+[31,'06/02','Sergio Maximo Neri','ORT',1,400,400,400,0,'TR','Febrero'],
+[32,'06/02','Angel Leonel','IV',1,800,800,800,0,'E','Febrero'],
+[33,'06/02','Iker','CON',1,800,800,800,0,'E','Febrero'],
+[34,'06/02','Melanie','TXCA',1,2800,2800,2800,0,'E','Febrero'],
+[35,'11/02','Fatima Pineda','CON',1,800,800,800,0,'TR','Febrero'],
+[36,'11/02','Juan Pablo Pineda','CON',1,800,800,800,0,'TR','Febrero'],
+[37,'11/02','Santiago','CON',1,800,800,800,0,'TD','Febrero'],
+[38,'11/02','Jose Miguel','CON',1,800,800,800,0,'E','Febrero'],
+[39,'11/02','Roy','CON',1,800,800,800,0,'E','Febrero'],
+[40,'11/02','Patricio','EXT',1,600,600,600,0,'TR','Febrero'],
+[41,'13/02','Alejandro','ORT',1,1500,1500,1500,0,'E','Febrero'],
+[42,'13/02','Andrik','MESP',1,2800,2800,2800,0,'E','Febrero'],
+[43,'13/02','Andrik','IV',1,800,800,800,0,'E','Febrero'],
+[44,'13/02','Maya','CON',1,800,800,800,0,'E','Febrero'],
+[45,'13/02','Maya','RES',1,800,800,800,0,'E','Febrero'],
+[46,'13/02','Melanie','TXCA',1,2800,2800,2800,0,'E','Febrero'],
+[47,'20/02','Alex','IV',1,800,800,800,0,'TR','Febrero'],
+[48,'20/02','Cruz Dali','CON',1,800,800,800,0,'TR','Febrero'],
+[49,'20/02','Roy','EXT',4,600,2400,2400,0,'E','Febrero'],
+[50,'20/02','Regina','REV',1,800,800,800,0,'E','Febrero'],
+[51,'20/02','Joseph','CON',1,800,800,300,500,'E','Febrero'],
+[52,'20/02','Dario','REV',1,300,300,300,0,'TD','Febrero'],
+[53,'25/02','Fatima','IV',2,800,1600,1600,0,'TR','Febrero'],
+[54,'25/02','Melanie','TXCA',1,2800,2800,2800,0,'TD','Febrero'],
+[55,'25/02','Regina','CA',1,1400,1400,1400,0,'E','Febrero'],
+[56,'25/02','Max','CON',1,800,800,800,0,'E','Febrero'],
+[57,'25/02','Sofia','CON',1,800,800,800,0,'E','Febrero'],
+[58,'27/02','Maximo','IV',2,800,1600,1600,0,'E','Febrero'],
+[59,'27/02','Joseoh Mateo','IV',1,800,800,800,0,'E','Febrero'],
+[60,'27/02','Victoria','CON',1,800,800,800,0,'TD','Febrero'],
+[61,'27/02','Diego Lopez','CON',1,800,800,800,0,'E','Febrero'],
+[62,'27/02','Alberto','CON',1,800,800,800,0,'TD','Febrero'],
+[63,'04/03','Regina','CON',1,800,800,800,0,'TR','Marzo'],
+[64,'04/03','Santiago','TXCA',1,3000,3000,3000,0,'TD','Marzo'],
+[65,'08/04','Maria Gonzalez Lopez','ORT',4,800,3200,3200,0,'TC','Abril'],
+[66,'08/04','Carlos Herrera Ruiz','UL',1,800,800,600,200,'E','Abril'],
+[67,'08/04','Ana Martinez Vega','EXT',3,600,1800,1800,0,'TR','Abril'],
+[68,'08/04','Roberto Sanchez Cruz','CON',1,800,800,800,0,'E','Abril'],
+[69,'08/04','Laura Jimenez Torres','TXCA',1,2800,2800,2800,0,'E','Abril'],
+[70,'10/04','Jorge Mendoza','TX CEL',1,3000,3000,3000,0,'TD','Abril'],
+[71,'10/04','Sandra Flores','CA',1,8000,8000,8000,0,'TC','Abril'],
+[72,'14/04','Ana Martinez Vega','TX CEL',1,9000,9000,5000,4000,'TR','Abril'],
+[73,'14/04','Maximo Raziel','REV',1,400,400,400,0,'E','Abril'],
+[74,'17/04','Alejandro Vega','ORT',1,1500,1500,1500,0,'TR','Abril'],
+[75,'17/04','Genesis Alfaro','TXCA',1,2800,2800,2800,0,'E','Abril'],
+[76,'22/04','Ana Martinez Vega','MESP',1,12000,12000,5000,7000,'TR','Abril'],
+[77,'22/04','Melanie Munoz','CA',1,1400,1400,1400,0,'TC','Abril'],
+[78,'24/04','Dante Bustos','EXT',2,600,1200,1200,0,'E','Abril'],
+[79,'29/04','Amelia Gonzalez','TXCA',1,2800,2800,2800,0,'TC','Abril'],
+[80,'29/04','Angel Ceballos','IV',2,800,1600,1600,0,'E','Abril'],
+[81,'06/05','Maria Gonzalez Lopez','ORT',1,800,800,800,0,'TC','Mayo'],
+[82,'06/05','Carlos Herrera Ruiz','CON',1,800,800,800,0,'E','Mayo'],
+[83,'06/05','Ana Martinez Vega','CA',1,8000,8000,4000,4000,'TR','Mayo'],
+[84,'06/05','Roberto Sanchez Cruz','RES',1,800,800,800,0,'TD','Mayo'],
+[85,'08/05','Laura Jimenez Torres','REV',1,400,400,400,0,'E','Mayo'],
+[86,'08/05','Jorge Mendoza','UL',1,800,800,800,0,'TD','Mayo'],
+[87,'13/05','Sandra Flores','IV',1,800,800,800,0,'TC','Mayo'],
+[88,'13/05','Maximo Raziel','IV',2,800,1600,1600,0,'E','Mayo'],
+[89,'15/05','Alejandro Vega','ORT',1,1500,1500,1500,0,'TR','Mayo'],
+[90,'15/05','Ana Martinez Vega','TXCA',1,3200,3200,3200,0,'TR','Mayo'],
+[91,'20/05','Genesis Alfaro','REV',1,400,400,400,0,'E','Mayo'],
+[92,'20/05','Melanie Munoz','TXCA',1,2800,2800,2800,0,'TC','Mayo'],
+[93,'22/05','Victoria','CON',1,800,800,800,0,'TD','Mayo'],
+[94,'22/05','Angel Leonel Rodriguez','IV',1,800,800,800,0,'E','Mayo'],
+[95,'27/05','Cruz Dali','CON',1,800,800,800,0,'TR','Mayo'],
+[96,'27/05','Joseph','CON',1,800,800,800,0,'E','Mayo']
+];
+
+let EGRESOS=[
+[1,'01/01','Renta enero','RENTA',4500,'Enero'],
+[2,'01/01','Pago PAU enero','PAU',3050,'Enero'],
+[3,'01/02','Renta febrero','RENTA',4500,'Febrero'],
+[4,'01/02','Pago PAU febrero','PAU',3050,'Febrero'],
+[5,'01/03','Renta marzo','RENTA',4500,'Marzo'],
+[6,'01/04','Renta abril','RENTA',4500,'Abril'],
+[7,'01/04','Pago PAU abril','PAU',3050,'Abril'],
+[8,'10/04','Insumos dentales ProDent','INSUMOS',4200,'Abril'],
+[9,'10/04','Laboratorio dental coronas','LABORATORIO',7500,'Abril'],
+[10,'15/04','Material de limpieza','GENERALES',380,'Abril'],
+[11,'01/05','Renta mayo','RENTA',4500,'Mayo'],
+[12,'01/05','Pago PAU mayo','PAU',3050,'Mayo'],
+[13,'12/05','Insumos dentales','INSUMOS',3800,'Mayo'],
+[14,'20/05','Gastos administrativos','ADMIN',1200,'Mayo']
+];
+
+let CITAS=[
+{id:1,fecha:'14/05',pac:'Ana Martinez Vega',tipo:'TXCA',dur:60,hora:'09:00',hNum:9,dia:2,col:'#8b5cf6',notas:'Seguimiento tx conducto'},
+{id:2,fecha:'14/05',pac:'Maximo Raziel',tipo:'IV',dur:45,hora:'10:00',hNum:10,dia:2,col:'#3b82f6',notas:'Control sedación'},
+{id:3,fecha:'14/05',pac:'Genesis Alfaro',tipo:'REV',dur:30,hora:'11:00',hNum:11,dia:2,col:'#10b981',notas:''},
+{id:4,fecha:'14/05',pac:'Melanie Munoz',tipo:'TXCA',dur:60,hora:'12:00',hNum:12,dia:2,col:'#8b5cf6',notas:'Sesión 3'},
+{id:5,fecha:'14/05',pac:'Alejandro Vega',tipo:'ORT',dur:45,hora:'14:00',hNum:14,dia:2,col:'#f59e0b',notas:'Mensual'},
+{id:6,fecha:'15/05',pac:'Cruz Dali',tipo:'CON',dur:30,hora:'10:00',hNum:10,dia:3,col:'#10b981',notas:'Primera visita'},
+{id:7,fecha:'15/05',pac:'Sandra Flores',tipo:'CA',dur:60,hora:'11:00',hNum:11,dia:3,col:'#ec4899',notas:''},
+];
+
+let NOTAS_EXP=[
+{id:1,fecha:'15/05',tx:'TXCA',monto:3200,nota:'3ra sesión tx conducto pieza 36. Cicatrización correcta. Siguiente cita en 2 semanas.',locked:false},
+{id:2,fecha:'22/04',tx:'MESP',monto:5000,nota:'Anticipo mantenedor de espacio. Toma de impresión realizada. Laboratorio: entrega en 10 días.',locked:true},
+{id:3,fecha:'14/04',tx:'TX CEL',monto:5000,nota:'Tx celular 2da sesión. Sin complicaciones. Evolución favorable.',locked:true},
+{id:4,fecha:'08/04',tx:'EXT',monto:1800,nota:'3 extracciones piezas 15,16,17 bajo sedación IV. Sin complicaciones. Indicaciones post-extracción.',locked:true},
+];
+
+let PAX_EXTRA=[];
+
+// ═══════════════════════════ CÁLCULOS ═══════════════════════
+function calcPaxMap(){
+  const m={};
+  PAGOS.forEach(r=>{
+    const n=r[2];
+    if(!m[n])m[n]={name:n,abono:0,costo:0,visitas:0,lastTx:r[3],lastFecha:r[1],lastMes:r[10],saldo:0};
+    m[n].abono+=r[7];m[n].costo+=r[6];m[n].visitas++;
+    m[n].lastTx=r[3];m[n].lastFecha=r[1];m[n].lastMes=r[10];m[n].saldo+=r[8];
+  });
+  PAX_EXTRA.forEach(p=>{if(!m[p.nombre])m[p.nombre]={name:p.nombre,abono:0,costo:0,visitas:0,lastTx:p.motivo,lastFecha:'nuevo',lastMes:'—',saldo:0};});
+  return Object.values(m).sort((a,b)=>b.abono-a.abono);
+}
+function calcT(){
+  const ing=PAGOS.reduce((s,r)=>s+r[7],0);
+  const egr=EGRESOS.reduce((s,r)=>s+r[4],0);
+  const saldo=PAGOS.reduce((s,r)=>s+Math.max(r[8],0),0);
+  return{ing,egr,and:Math.round(ing*.6),cons:Math.round(ing*.4),reg:PAGOS.length,saldo};
+}
+function calcMonthly(){
+  const ORD=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const m={};
+  PAGOS.forEach(r=>{if(!m[r[10]])m[r[10]]={mes:r[10],ing:0,reg:0,egr:0};m[r[10]].ing+=r[7];m[r[10]].reg++;});
+  EGRESOS.forEach(r=>{if(!m[r[5]])m[r[5]]={mes:r[5],ing:0,reg:0,egr:0};m[r[5]].egr+=r[4];});
+  return ORD.filter(x=>m[x]).map(x=>({...m[x],andrea:Math.round(m[x].ing*.6),consult:Math.round(m[x].ing*.4)}));
+}
+function topTx(){
+  const m={};
+  PAGOS.forEach(r=>{if(!m[r[3]])m[r[3]]=0;m[r[3]]+=r[7];});
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({k,v}));
+}
+function topFormas(){
+  const m={};
+  PAGOS.forEach(r=>{if(!r[9])return;if(!m[r[9]])m[r[9]]=0;m[r[9]]+=r[7];});
+  const tot=Object.values(m).reduce((s,v)=>s+v,0)||1;
+  const labels={E:'💵 Efectivo',TR:'📱 Transferencia',TC:'💳 T. Crédito',TD:'💳 T. Débito','E Y TR':'💵+📱 Efec+Trans'};
+  return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:labels[k]||k,val:v,pct:Math.round(v/tot*100)}));
+}
+function updateMeta(){
+  document.getElementById('reg-count').textContent=PAGOS.length+' registros';
+  fillDatalist();
+}
+
+// ═══════════════════════════ MODALES OPENERS ════════════════
+function openNuevaCita(){
+  document.getElementById('c-fecha').value=todayStr();
+  document.getElementById('c-pac').value='';
+  document.getElementById('c-notas').value='';
+  fillDatalist();
+  openModal('m-cita');
+}
+function openNuevoPaciente(){
+  ['p-nombre','p-tel','p-email','p-notas'].forEach(id=>document.getElementById(id).value='');
+  openModal('m-paciente');
+}
+function openCobro(){
+  document.getElementById('co-fecha').value=todayStr();
+  document.getElementById('co-pac').value='';
+  document.getElementById('co-abono').value='';
+  document.getElementById('co-total').value='';
+  document.getElementById('co-saldo').value='';
+  document.getElementById('co-costo').value='';
+  document.getElementById('co-cant').value='1';
+  fillDatalist();
+  openModal('m-cobro');
+}
+function openEgreso(){
+  document.getElementById('e-fecha').value=todayStr();
+  document.getElementById('e-concepto').value='';
+  document.getElementById('e-monto').value='';
+  document.getElementById('e-nota').value='';
+  openModal('m-egreso');
+}
+function openNotaExp(){
+  document.getElementById('n-texto').value='';
+  document.getElementById('n-monto').value='0';
+  openModal('m-nota');
+}
+function openAbono(pacName,saldo){
+  _abonoTarget={pac:pacName,saldo};
+  document.getElementById('m-abono-sub').textContent=pacName+' · Saldo pendiente: '+F(saldo);
+  document.getElementById('ab-monto').value=saldo;
+  openModal('m-abono');
+}
+function fillDatalist(){
+  const names=calcPaxMap().map(p=>`<option value="${p.name}">`).join('');
+  ['dl-pax','dl-pax2'].forEach(id=>{const d=document.getElementById(id);if(d)d.innerHTML=names;});
+}
+
+// ═══════════════════════════ AUTOFILL ═══════════════════════
+function autoFillPrecio(){
+  const tx=document.getElementById('co-tx').value;
+  const p=TX_PRICES[tx]||0;
+  document.getElementById('co-costo').value=p;
+  recalcTotal();
+}
+function recalcTotal(){
+  const c=parseFloat(document.getElementById('co-costo').value)||0;
+  const q=parseInt(document.getElementById('co-cant').value)||1;
+  const tot=c*q;
+  document.getElementById('co-total').value=tot;
+  document.getElementById('co-abono').value=tot;
+  document.getElementById('co-saldo').value=0;
+}
+function recalcSaldo(){
+  const tot=parseFloat(document.getElementById('co-total').value)||0;
+  const ab=parseFloat(document.getElementById('co-abono').value)||0;
+  document.getElementById('co-saldo').value=Math.max(tot-ab,0);
+}
+
+// ═══════════════════════════ GUARDAR ════════════════════════
+function saveCita(){
+  const pac=document.getElementById('c-pac').value.trim();
+  const fecha=document.getElementById('c-fecha').value;
+  const hora=document.getElementById('c-hora').value;
+  const tipo=document.getElementById('c-tipo').value;
+  const dur=parseInt(document.getElementById('c-dur').value);
+  const notas=document.getElementById('c-notas').value;
+  if(!pac){toast('⚠ Escribe el nombre del paciente','#dc2626');return;}
+  if(!fecha){toast('⚠ Selecciona una fecha','#dc2626');return;}
+  const parts=fecha.split('-');
+  const fechaFmt=parts[2]+'/'+parts[1];
+  const hNum=parseInt(hora.split(':')[0]);
+  const cols=['#3b82f6','#10b981','#8b5cf6','#f59e0b','#ec4899','#06b6d4'];
+  CITAS.push({id:CITAS.length+1,fecha:fechaFmt,pac,tipo,dur,hora,hNum,dia:2,col:cols[CITAS.length%6],notas});
+  closeModal('m-cita');
+  toast('✓ Cita agendada: '+pac+' · '+hora+' ('+tipo+')');
+  if(PAGE==='agenda')go('agenda');
+}
+function savePaciente(){
+  const nombre=document.getElementById('p-nombre').value.trim();
+  if(!nombre){toast('⚠ Escribe el nombre del paciente','#dc2626');return;}
+  const obj={
+    nombre,
+    tel:document.getElementById('p-tel').value.trim(),
+    edad:document.getElementById('p-edad').value,
+    email:document.getElementById('p-email').value.trim(),
+    motivo:document.getElementById('p-motivo').value,
+    notas:document.getElementById('p-notas').value
+  };
+  PAX_EXTRA.push(obj);
+  closeModal('m-paciente');
+  toast('✓ Paciente registrado: '+nombre);
+  if(PAGE==='patients')go('patients');
+}
+function saveCobro(){
+  const pac=document.getElementById('co-pac').value.trim();
+  const abono=parseFloat(document.getElementById('co-abono').value)||0;
+  if(!pac){toast('⚠ Escribe el nombre del paciente','#dc2626');return;}
+  if(!abono){toast('⚠ Ingresa el monto del abono','#dc2626');return;}
+  const fecha=document.getElementById('co-fecha').value;
+  const mes=document.getElementById('co-mes').value;
+  const tx=document.getElementById('co-tx').value;
+  const cant=parseInt(document.getElementById('co-cant').value)||1;
+  const costo=parseFloat(document.getElementById('co-costo').value)||0;
+  const total=costo*cant;
+  const saldo=Math.max(total-abono,0);
+  const fp=document.getElementById('co-fpago').value;
+  const parts=fecha.split('-');
+  const fechaFmt=parts[2]+'/'+parts[1];
+  PAGOS.push([PAGOS.length+1,fechaFmt,pac,tx,cant,costo,total,abono,saldo,fp,mes]);
+  closeModal('m-cobro');
+  toast('✓ Cobro registrado: '+pac+' · '+F(abono));
+  updateMeta();
+  if(PAGE==='payments'||PAGE==='dashboard'||PAGE==='commissions'||PAGE==='reports')go(PAGE);
+}
+function saveEgreso(){
+  const concepto=document.getElementById('e-concepto').value.trim();
+  const monto=parseFloat(document.getElementById('e-monto').value)||0;
+  if(!concepto){toast('⚠ Escribe el concepto del egreso','#dc2626');return;}
+  if(!monto){toast('⚠ Ingresa el monto','#dc2626');return;}
+  const fecha=document.getElementById('e-fecha').value;
+  const mes=document.getElementById('e-mes').value;
+  const cat=document.getElementById('e-cat').value;
+  const parts=fecha.split('-');
+  const fechaFmt=parts[2]+'/'+parts[1];
+  EGRESOS.push([EGRESOS.length+1,fechaFmt,concepto,cat,monto,mes]);
+  closeModal('m-egreso');
+  toast('✓ Egreso registrado: '+concepto+' · '+F(monto),'#dc2626');
+  if(PAGE==='expenses'||PAGE==='commissions'||PAGE==='reports')go(PAGE);
+}
+function saveNota(){
+  const texto=document.getElementById('n-texto').value.trim();
+  if(!texto){toast('⚠ Escribe la nota clínica','#dc2626');return;}
+  const tx=document.getElementById('n-tx').value;
+  const monto=parseFloat(document.getElementById('n-monto').value)||0;
+  const d=new Date();
+  const fecha=(d.getDate()+'').padStart(2,'0')+'/'+(d.getMonth()+1+'').padStart(2,'0');
+  NOTAS_EXP.unshift({id:NOTAS_EXP.length+1,fecha,tx,monto,nota:texto,locked:false});
+  closeModal('m-nota');
+  toast('✓ Nota clínica guardada');
+  if(PAGE==='expediente'){ETAB='notas';go('expediente');}
+}
+function saveAbono(){
+  if(!_abonoTarget)return;
+  const monto=parseFloat(document.getElementById('ab-monto').value)||0;
+  if(!monto){toast('⚠ Ingresa el monto del abono','#dc2626');return;}
+  const fp=document.getElementById('ab-fpago').value;
+  const d=new Date();
+  const fecha=(d.getDate()+'').padStart(2,'0')+'/'+(d.getMonth()+1+'').padStart(2,'0');
+  const mes=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][d.getMonth()];
+  const saldo=Math.max(_abonoTarget.saldo-monto,0);
+  PAGOS.push([PAGOS.length+1,fecha,_abonoTarget.pac,'REV',1,0,0,monto,-monto,fp,mes]);
+  closeModal('m-abono');
+  toast('✓ Abono registrado: '+_abonoTarget.pac+' · '+F(monto));
+  updateMeta();
+  _abonoTarget=null;
+  if(PAGE==='payments'||PAGE==='dashboard')go(PAGE);
+}
+function lockNota(i){
+  NOTAS_EXP[i].locked=true;
+  toast('🔒 Nota firmada y bloqueada');
+  document.getElementById('etab-body').innerHTML=rEtabBody();
+}
+
+// ═══════════════════════════ EXPORTAR ════════════════════════
+function exportCSV(rows,headers,fname){
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${v??''}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=fname;a.click();
+  toast('⬇ Descargando '+fname);
+}
+function exportPagos(){exportCSV(PAGOS,['#','Fecha','Paciente','Tx','Cant','Costo/u','Total','Abono','Saldo','F.Pago','Mes'],'pagos_2025.csv');}
+function exportEgresos(){exportCSV(EGRESOS,['#','Fecha','Concepto','Categoria','Monto','Mes'],'egresos_2025.csv');}
+function exportPacientes(){
+  const rows=calcPaxMap().map(p=>[p.name,p.visitas,p.abono,p.saldo,p.lastMes]);
+  exportCSV(rows,['Paciente','Visitas','Total Pagado','Saldo','Ultimo Mes'],'pacientes_2025.csv');
+}
+
+// ═══════════════════════════ NAVEGACIÓN ══════════════════════
+const NAVX=[
+  {id:'dashboard',ic:'▦',l:'Dashboard'},
+  {id:'agenda',ic:'📅',l:'Agenda'},
+  {id:'patients',ic:'👥',l:'Pacientes'},
+  {id:'expediente',ic:'🦷',l:'Expediente'},
+  {id:'payments',ic:'💳',l:'Cobros'},
+  {id:'expenses',ic:'📉',l:'Egresos'},
+  {id:'commissions',ic:'💰',l:'División'},
+  {id:'reports',ic:'📊',l:'Reportes'},
+  {id:'flujo',ic:'🔄',l:'Flujo'},
+  {id:'roles',ic:'👤',l:'Roles'},
+];
+const HDRS={dashboard:'Dashboard',agenda:'Agenda',patients:'Pacientes',expediente:'Expediente clínico',payments:'Cobros 2025',expenses:'Egresos 2025',commissions:'División 60 / 40 %',reports:'Reportes',flujo:'Flujo operativo',roles:'Roles y accesos'};
+let PAGE='dashboard',ETAB='odonto',COBROS_FILTER='Todos',PAX_SEARCH='';
+
+function buildSidebar(){
+  document.getElementById('sb-nav').innerHTML=NAVX.map(it=>`
+    <button class="nav-item ${it.id===PAGE?'active':''}" onclick="go('${it.id}')">
+      <span class="nav-ic">${it.ic}</span><span>${it.l}</span>
+    </button>`).join('');
+}
+function go(p){
+  PAGE=p;ETAB='odonto';COBROS_FILTER='Todos';PAX_SEARCH='';
+  buildSidebar();
+  document.getElementById('hdr-title').textContent=HDRS[p]||p;
+  const map={dashboard:rDash,agenda:rAgenda,patients:rPax,expediente:rExp,payments:rPays,expenses:rExps,commissions:rComm,reports:rRep,flujo:rFlujo,roles:rRoles};
+  const c=document.getElementById('content');
+  c.innerHTML='<div class="page">'+(map[p]||rDash)()+'</div>';
+  c.scrollTop=0;
+  updateMeta();
+}
+
+// ═══════════════════════════ PANTALLAS ══════════════════════
+
+// ── DASHBOARD ─────────────────────────────────────────────
+function rDash(){
+  const T=calcT(),M=calcMonthly(),PL=calcPaxMap();
+  const maxI=Math.max(...M.map(m=>m.ing));
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Buenos días, Dra. Andrea 👋</div>
+  <div class="page-sub">Ene–May 2025 · ${T.reg} cobros · ${PL.length} pacientes únicos</div></div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;">
+    <button class="btn btn-o" onclick="exportPagos()">⬇ Exportar</button>
+    <button class="btn btn-p" onclick="openNuevaCita()">📅 + Nueva cita</button>
+  </div>
+</div>
+<div class="kgrid g4">
+  ${[
+    ['💰','Ingreso bruto',F(T.ing),T.reg+' cobros','#f0fdf4','#bbf7d0','#059669'],
+    ['👩‍⚕️','60 % Dra. Andrea',F(T.and),'Acumulado','#eff6ff','#bfdbfe','#2563eb'],
+    ['🏥','40 % Consultorio',F(T.cons),'Acumulado','#f5f3ff','#ddd6fe','#7c3aed'],
+    ['⚠️','Saldo pendiente',F(T.saldo),'Por cobrar','#fef2f2','#fecaca','#dc2626'],
+  ].map(([ic,l,v,s,bg,bc,ac])=>`
+  <div class="kcard" style="background:${bg};border:1px solid ${bc};">
+    <div style="font-size:20px;margin-bottom:6px;">${ic}</div>
+    <div style="font-size:20px;font-weight:900;color:#0f172a;">${v}</div>
+    <div style="font-size:8px;font-weight:700;color:${ac};text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">${l}</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">${s}</div>
+  </div>`).join('')}
+</div>
+<div class="tcol" style="margin-bottom:11px;">
+  <div class="card cp">
+    <div class="ctitle">Ingresos mensuales</div>
+    ${M.map(m=>`
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;align-items:center;">
+        <span style="font-size:10px;font-weight:700;color:#334155;">${m.mes}</span>
+        <div style="display:flex;gap:8px;">
+          <span style="font-size:8px;color:#94a3b8;">${m.reg} tx</span>
+          <span style="font-size:10px;font-weight:800;color:#0f172a;">${F(m.ing)}</span>
+        </div>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="background:${m.ing===maxI?'#2563eb':'#93c5fd'};width:${Math.round(m.ing/maxI*100)}%;"></div></div>
+    </div>`).join('')}
+  </div>
+  <div class="dark-box">
+    <div style="font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin-bottom:11px;">Resumen ejecutivo 2025</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+      ${[
+        ['Ingresos',F(T.ing),'#60a5fa'],
+        ['60% Andrea',F(T.and),'#34d399'],
+        ['40% Consult.',F(T.cons),'#a78bfa'],
+        ['Egresos','−'+F(T.egr),'#f87171'],
+        ['Neto',F(T.cons-T.egr),(T.cons-T.egr)>=0?'#34d399':'#f87171'],
+        ['Margen',Math.round((T.cons-T.egr)/T.cons*100)+'%','#fbbf24'],
+      ].map(([l,v,c])=>`<div>
+        <div style="font-size:8px;color:#475569;">${l}</div>
+        <div style="font-size:13px;font-weight:900;color:${c};margin-top:1px;">${v}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div style="padding:10px 12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:11px;font-weight:700;color:#0f172a;">Top pacientes</span>
+    <button class="btn btn-o" style="font-size:9px;" onclick="go('patients')">Ver todos →</button>
+  </div>
+  <table>
+    ${PL.slice(0,8).map((p,i)=>`<tr>
+      <td style="width:20px;font-size:9px;color:#cbd5e1;font-weight:700;">${i+1}</td>
+      <td><div style="display:flex;gap:8px;align-items:center;">${AV(p.name,26,i)}
+        <div><div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
+        <div style="font-size:8px;color:#94a3b8;">${p.visitas} visitas · ${p.lastTx}</div></div>
+      </div></td>
+      <td>${CH(p.lastMes,'blue')}</td>
+      <td>${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:2px 7px;" onclick="openAbono('${p.name.replace(/'/g,"\\'")}',${p.saldo})">Saldo ${F(p.saldo)}</button>`:CH('Al corriente','green')}</td>
+      <td style="font-size:12px;font-weight:900;color:#059669;text-align:right;">${F(p.abono)}</td>
+    </tr>`).join('')}
+  </table>
+</div>`;
+}
+
+// ── AGENDA ────────────────────────────────────────────────
+function rAgenda(){
+  const hours=[8,9,10,11,12,13,14,15,16];
+  const days=['Lun 12','Mar 13','Mié 14','Jue 15','Vie 16','Sáb 17'];
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Agenda semanal</div>
+  <div class="page-sub">12–17 May 2025 · ${CITAS.length} citas agendadas</div></div>
+  <div style="display:flex;gap:7px;">
+    <button class="btn btn-o">◀</button>
+    <button class="btn btn-o">Hoy</button>
+    <button class="btn btn-o">▶</button>
+    <button class="btn btn-p" onclick="openNuevaCita()">📅 + Nueva cita</button>
+  </div>
+</div>
+<div class="card cal-wrap">
+  <div class="cal-grid">
+    <div class="cal-head" style="border-right:1px solid #f1f5f9;"></div>
+    ${days.map((d,i)=>`
+    <div class="cal-head" style="background:${i===2?'#eff6ff':'#fff'};border-left:1px solid #f1f5f9;">
+      <div style="font-size:7px;font-weight:700;color:#94a3b8;text-transform:uppercase;">${d.split(' ')[0]}</div>
+      <div style="font-size:15px;font-weight:900;color:${i===2?'#2563eb':'#334155'};">${d.split(' ')[1]}</div>
+    </div>`).join('')}
+    ${hours.map(h=>`
+      <div class="cal-hour"><span style="font-size:7px;color:#cbd5e1;">${h}:00</span></div>
+      ${days.map((_,ci)=>{
+        const aps=CITAS.filter(a=>a.hNum===h&&a.dia===ci);
+        return`<div class="cal-cell" style="${ci===2?'background:#eff6ff0a':''}">
+          ${aps.map(a=>`<div class="appt-block" style="background:${a.col}16;border-left-color:${a.col};" onclick="verCita(${a.id})">
+            <div style="font-size:9px;font-weight:800;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.pac}</div>
+            <div style="font-size:8px;color:#64748b;">${a.tipo} · ${a.dur}min</div>
+          </div>`).join('')}
+        </div>`;
+      }).join('')}
+    `).join('')}
+  </div>
+</div>`;
+}
+function verCita(id){
+  const c=CITAS.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('m-ver-cita-body').innerHTML=`
+    <div class="modal-title">📅 Detalle de cita</div>
+    <div class="modal-sub">${c.fecha}/2025 · ${c.hora}</div>
+    <div style="background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:4px;">
+      <div style="font-size:14px;font-weight:800;color:#0f172a;margin-bottom:8px;">${c.pac}</div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">${CH(c.tipo,'blue')}${CH(c.dur+' min','gray')}${CH(c.hora,'purple')}</div>
+      ${c.notas?`<div style="font-size:10px;color:#475569;padding:8px;background:#fff;border-radius:7px;border:1px solid #e2e8f0;line-height:1.6;">${c.notas}</div>`:''}
+    </div>`;
+  openModal('m-ver-cita');
+}
+
+// ── PACIENTES ──────────────────────────────────────────────
+function rPax(){
+  const PL=calcPaxMap();
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Pacientes</div>
+  <div class="page-sub">${PL.length} pacientes únicos · datos reales 2025</div></div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;">
+    <button class="btn btn-o" onclick="exportPacientes()">⬇ Exportar CSV</button>
+    <button class="btn btn-p" onclick="openNuevoPaciente()">👥 + Nuevo paciente</button>
+  </div>
+</div>
+<div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center;">
+  <div class="srch"><input type="text" id="srch-pax" placeholder="Buscar paciente..." value="${PAX_SEARCH}"
+    oninput="PAX_SEARCH=this.value;renderPaxTable()"></div>
+  ${['Todos','Con saldo','Mayo','Abril','Frecuentes'].map(f=>`
+    <button class="btn btn-o" style="font-size:9px;padding:4px 9px;" onclick="filtrarPax('${f}')">${f}</button>`).join('')}
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>#</th><th>Paciente</th><th>Visitas</th><th>Último Tx</th><th>Mes</th><th>Saldo</th><th>Total pagado</th><th></th></tr></thead>
+    <tbody id="pax-tbody"></tbody>
+  </table>
+</div>`;
+}
+function renderPaxTable(){
+  const PL=calcPaxMap();
+  let list=PAX_SEARCH?PL.filter(p=>p.name.toLowerCase().includes(PAX_SEARCH.toLowerCase())):PL;
+  const tbody=document.getElementById('pax-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=list.map((p,i)=>`<tr style="cursor:pointer;">
+    <td style="font-size:9px;color:#cbd5e1;">${i+1}</td>
+    <td onclick="go('expediente')"><div style="display:flex;gap:8px;align-items:center;">${AV(p.name,28,i)}
+      <div><div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
+      <div style="font-size:8px;color:#94a3b8;">${p.visitas} visita${p.visitas>1?'s':''} · ${p.lastFecha}</div></div>
+    </div></td>
+    <td style="text-align:center;font-weight:700;">${p.visitas}</td>
+    <td>${CH(p.lastTx,'blue')}</td>
+    <td>${CH(p.lastMes,p.lastMes==='Mayo'?'green':p.lastMes==='Abril'?'blue':'gray')}</td>
+    <td>${p.saldo>0?`<span style="font-weight:700;color:#dc2626;">${F(p.saldo)}</span>`:
+         p.saldo<0?`<span style="color:#d97706;">Anticipo</span>`:
+         '<span style="color:#94a3b8;">—</span>'}</td>
+    <td style="font-size:11px;font-weight:900;color:#059669;">${F(p.abono)}</td>
+    <td>
+      <div style="display:flex;gap:4px;">
+        <button class="btn btn-o" style="font-size:8px;padding:3px 7px;" onclick="go('expediente')">Ver</button>
+        ${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:3px 7px;" onclick="openAbono('${p.name.replace(/'/g,"\\'")}',${p.saldo})">Abono</button>`:''}
+      </div>
+    </td>
+  </tr>`).join('');
+}
+function filtrarPax(f){
+  const PL=calcPaxMap();
+  let list;
+  if(f==='Con saldo')list=PL.filter(p=>p.saldo>0);
+  else if(f==='Mayo')list=PL.filter(p=>p.lastMes==='Mayo');
+  else if(f==='Abril')list=PL.filter(p=>p.lastMes==='Abril');
+  else if(f==='Frecuentes')list=PL.filter(p=>p.visitas>=3);
+  else list=PL;
+  PAX_SEARCH='';
+  const tbody=document.getElementById('pax-tbody');
+  if(tbody)tbody.innerHTML=list.map((p,i)=>`<tr>
+    <td style="font-size:9px;color:#cbd5e1;">${i+1}</td>
+    <td onclick="go('expediente')"><div style="display:flex;gap:8px;align-items:center;">${AV(p.name,28,i)}
+      <div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
+    </div></td>
+    <td style="text-align:center;font-weight:700;">${p.visitas}</td>
+    <td>${CH(p.lastTx,'blue')}</td>
+    <td>${CH(p.lastMes,'gray')}</td>
+    <td>${p.saldo>0?`<span style="font-weight:700;color:#dc2626;">${F(p.saldo)}</span>`:'<span style="color:#94a3b8;">—</span>'}</td>
+    <td style="font-size:11px;font-weight:900;color:#059669;">${F(p.abono)}</td>
+    <td><div style="display:flex;gap:4px;">
+      <button class="btn btn-o" style="font-size:8px;padding:3px 7px;" onclick="go('expediente')">Ver</button>
+      ${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:3px 7px;" onclick="openAbono('${p.name.replace(/'/g,"\\'")}',${p.saldo})">Abono</button>`:''}
+    </div></td>
+  </tr>`).join('');
+}
+
+// ── EXPEDIENTE ────────────────────────────────────────────
+function rExp(){
+  const PL=calcPaxMap();
+  const ana=PL.find(p=>p.name.includes('Ana Martinez'))||PL[0];
+  return`
+<div style="background:linear-gradient(120deg,#eff6ff,#f5f3ff);border:1px solid #dbeafe;border-radius:13px;padding:14px;margin-bottom:10px;">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    ${AV(ana.name,46,2)}
+    <div style="flex:1;min-width:160px;">
+      <div style="font-size:16px;font-weight:800;color:#0f172a;">${ana.name}</div>
+      <div style="font-size:10px;color:#94a3b8;margin-top:2px;">${ana.visitas} visitas · EXT, TX CEL, TXCA, MESP, CA</div>
+      <div style="display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;">${CH('Paciente frecuente','amber')}${CH('Saldo pendiente','red')}</div>
+    </div>
+    <div style="background:#fff;border-radius:10px;padding:10px 14px;border:1px solid #fecaca;text-align:center;">
+      <div style="font-size:8px;color:#94a3b8;font-weight:700;text-transform:uppercase;">Saldo pendiente</div>
+      <div style="font-size:20px;font-weight:900;color:#dc2626;">${F(Math.max(ana.saldo,0))}</div>
+      <button class="btn btn-a" style="font-size:9px;margin-top:5px;width:100%;" onclick="openAbono('${ana.name.replace(/'/g,"\\'")}',${Math.max(ana.saldo,0)})">Registrar abono</button>
+    </div>
+  </div>
+</div>
+<div class="alert-bar">⚠️ &nbsp;<strong>Alertas:</strong> Saldo pendiente ${F(Math.max(ana.saldo,0))} · ${ana.visitas} visitas registradas · Sin alergias documentadas</div>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:7px;">
+  <div class="tab-bar">
+    <button class="tab ${ETAB==='odonto'?'active':''}" onclick="setEtab('odonto')">🦷 Odontograma</button>
+    <button class="tab ${ETAB==='notas'?'active':''}" onclick="setEtab('notas')">📝 Historial</button>
+    <button class="tab ${ETAB==='antec'?'active':''}" onclick="setEtab('antec')">📋 Antecedentes</button>
+  </div>
+  <div style="display:flex;gap:6px;">
+    <button class="btn btn-o" onclick="openNuevaCita()">📅 Agendar cita</button>
+    <button class="btn btn-p" onclick="openNotaExp()">📝 + Nueva nota</button>
+  </div>
+</div>
+<div id="etab-body">${rEtabBody()}</div>`;
+}
+function setEtab(t){ETAB=t;document.getElementById('etab-body').innerHTML=rEtabBody();}
+function rEtabBody(){return ETAB==='odonto'?rOdonto():ETAB==='notas'?rNotas():rAntec();}
+
+function rOdonto(){
+  const TOP=['18','17','16','15','14','13','12','11','21','22','23','24','25','26','27','28'];
+  const BOT=['48','47','46','45','44','43','42','41','31','32','33','34','35','36','37','38'];
+  const CD={
+    '26':{c:'#6ee7b7',b:'#059669',s:'I',n:'Implante'},
+    '36':{c:'#c4b5fd',b:'#7c3aed',s:'Co',n:'Corona acero'},
+    '46':{c:'#fbbf24',b:'#d97706',s:'C',n:'Caries'},
+    '16':{c:'#fda4af',b:'#e11d48',s:'E',n:'Endodoncia'},
+    '21':{c:'#93c5fd',b:'#2563eb',s:'R',n:'Restauración'},
+    '48':{c:'#f1f5f9',b:'#cbd5e1',s:'×',n:'Ausente'},
+    '15':{c:'#fda4af',b:'#e11d48',s:'×',n:'Extraída'},
+    '17':{c:'#fda4af',b:'#e11d48',s:'×',n:'Extraída'},
+  };
+  const tSVG=num=>{
+    const cd=CD[num];
+    const bg=cd?cd.c:'#fff',st=cd?cd.b:'#e2e8f0',tx=cd?cd.s:'';
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:1px;">
+      <div style="font-size:6px;color:#94a3b8;font-family:monospace;">${num}</div>
+      <svg viewBox="0 0 26 30" width="20" height="24" style="cursor:pointer;" title="${num}${cd?' · '+cd.n:' · Sana'}" onclick="toast('Pieza ${num}${cd?' · '+cd.n:' · Sana'}')">
+        <rect x="1" y="1" width="24" height="28" rx="5" fill="${bg}" stroke="${st}" stroke-width="1.5"/>
+        ${tx&&tx!=='×'?`<text x="13" y="16" text-anchor="middle" dominant-baseline="middle" font-size="${tx.length>1?7:10}" font-weight="800" fill="${st}">${tx}</text>`:''}
+        ${tx==='×'?`<text x="13" y="17" text-anchor="middle" dominant-baseline="middle" font-size="13" fill="#94a3b8">×</text>`:''}
+      </svg>
+    </div>`;};
+  return`<div class="card cp">
+    <div class="ctitle">Odontograma FDI · Haz clic en cada pieza para ver su estado</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;background:#f8fafc;border-radius:10px;padding:14px 8px;border:1px solid #e2e8f0;">
+      <div style="display:flex;gap:2px;">${TOP.slice(0,8).map(tSVG).join('')}<div style="width:10px;"></div>${TOP.slice(8).map(tSVG).join('')}</div>
+      <div style="display:flex;align-items:center;gap:6px;width:100%;">
+        <div style="flex:1;border-top:1px dashed #e2e8f0;"></div>
+        <span style="font-size:7px;color:#cbd5e1;font-weight:700;padding:1px 8px;background:#fff;border-radius:99px;border:1px solid #f1f5f9;">SUP · INF</span>
+        <div style="flex:1;border-top:1px dashed #e2e8f0;"></div>
+      </div>
+      <div style="display:flex;gap:2px;">${BOT.slice(0,8).map(tSVG).join('')}<div style="width:10px;"></div>${BOT.slice(8).map(tSVG).join('')}</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;">
+      ${[['Caries','#fbbf24','#d97706'],['Restauración','#93c5fd','#2563eb'],['Corona','#c4b5fd','#7c3aed'],
+         ['Implante','#6ee7b7','#059669'],['Endodoncia','#fda4af','#e11d48'],['Ausente / Extraída','#f1f5f9','#cbd5e1']].map(([l,bg,b])=>`
+      <div style="display:flex;align-items:center;gap:4px;padding:2px 9px;background:#fff;border:1px solid #e2e8f0;border-radius:99px;font-size:9px;color:#64748b;font-weight:600;">
+        <div style="width:9px;height:9px;border-radius:2px;background:${bg};border:1.5px solid ${b};flex-shrink:0;"></div>${l}
+      </div>`).join('')}
+    </div>
+  </div>`;}
+
+function rNotas(){
+  return NOTAS_EXP.map((r,i)=>`
+  <div class="acc-row">
+    <div class="acc-head" onclick="toggleAcc('acc${i}','arr${i}')">
+      <div style="display:flex;align-items:center;gap:9px;">
+        <div style="width:3px;height:36px;border-radius:2px;background:#7c3aed;flex-shrink:0;"></div>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="font-size:11px;font-weight:800;color:#0f172a;">${r.fecha}/2025</span>
+            ${CH(r.tx,'blue')}
+            ${r.monto>0?CH(F(r.monto),'green'):''}
+            ${r.locked?CH('🔒 Firmada','gray'):CH('● Editable','blue')}
+          </div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:2px;">${r.nota.slice(0,65)}${r.nota.length>65?'...':''}</div>
+        </div>
+      </div>
+      <span id="arr${i}" style="color:#cbd5e1;font-size:11px;flex-shrink:0;transition:transform .2s;display:inline-block;">▼</span>
+    </div>
+    <div class="acc-body" id="acc${i}">
+      <p style="font-size:10px;color:#334155;line-height:1.7;margin-bottom:10px;">${r.nota}</p>
+      ${!r.locked?`<div style="display:flex;gap:6px;justify-content:flex-end;">
+        <button class="btn btn-o" style="font-size:9px;" onclick="lockNota(${i})">🔒 Firmar y bloquear</button>
+        <button class="btn btn-g" style="font-size:9px;" onclick="openCobro()">💳 Registrar cobro</button>
+      </div>`:
+      `<div style="font-size:9px;color:#94a3b8;display:flex;align-items:center;gap:5px;">
+        🔒 Nota firmada y bloqueada · No editable</div>`}
+    </div>
+  </div>`).join('')+
+  `<button class="btn btn-o" style="width:100%;margin-top:4px;font-size:10px;" onclick="openNotaExp()">+ Agregar nota clínica</button>`;}
+
+function toggleAcc(bodyId,arrId){
+  const b=document.getElementById(bodyId),a=document.getElementById(arrId);
+  if(!b)return;
+  const open=b.classList.toggle('open');
+  if(a)a.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+}
+
+function rAntec(){return`<div class="kgrid g2">
+  <div class="card cp"><div class="ctitle">Antecedentes sistémicos</div>
+    ${[['Hipertensión',false],['Diabetes mellitus',false],['Cardiopatía',false],['Embarazo',false],
+       ['Anticoagulantes',false],['Epilepsia',false],['Alergias a fármacos',false]].map(([n,v])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8fafc;">
+      <span style="font-size:10px;color:#475569;">${n}</span>
+      ${v?CH('✓ Sí','amber'):CH('No','gray')}
+    </div>`).join('')}
+  </div>
+  <div class="card cp"><div class="ctitle">Antecedentes dentales</div>
+    ${[['Tratamientos previos',true],['Extracciones previas',true],['Ortodoncia previa',false],
+       ['Prótesis',false],['Fobia dental',false],['Bruxismo',false]].map(([n,v])=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f8fafc;">
+      <span style="font-size:10px;color:#475569;">${n}</span>
+      ${v?CH('✓ Sí','amber'):CH('No','gray')}
+    </div>`).join('')}
+  </div>
+</div>`;}
+
+// ── COBROS ────────────────────────────────────────────────
+function rPays(){
+  const meses=['Todos',...new Set(PAGOS.map(r=>r[10]))];
+  const formas=topFormas();
+  const T=calcT();
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Cobros 2025</div>
+  <div class="page-sub">${PAGOS.length} registros · Total: ${F(T.ing)}</div></div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;">
+    <button class="btn btn-o" onclick="exportPagos()">⬇ Exportar CSV</button>
+    <button class="btn btn-g" onclick="openCobro()">💳 + Registrar cobro</button>
+  </div>
+</div>
+<div class="kgrid g4" style="margin-bottom:12px;">
+  ${formas.slice(0,4).map(f=>`
+  <div class="kcard" style="background:#f8fafc;border:1px solid #e2e8f0;">
+    <div style="font-size:9px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;">${f.label}</div>
+    <div style="font-size:18px;font-weight:900;color:#0f172a;">${F(f.val)}</div>
+    <div style="font-size:9px;color:#94a3b8;margin-top:2px;">${f.pct}%</div>
+  </div>`).join('')}
+</div>
+<div class="card">
+  <div style="padding:10px 12px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+    <span style="font-size:11px;font-weight:700;color:#0f172a;" id="cobros-title">Todos los registros</span>
+    <div style="display:flex;gap:4px;flex-wrap:wrap;">
+      ${meses.map(m=>`<button class="btn btn-${m===COBROS_FILTER?'p':'o'}" style="font-size:9px;padding:3px 8px;" onclick="filtrarCobros('${m}')">${m}</button>`).join('')}
+    </div>
+  </div>
+  <div id="cobros-body">${renderCobros(PAGOS)}</div>
+</div>`;
+}
+function renderCobros(data){
+  const fpL={E:'💵 Efect.',TR:'📱 Trans.',TC:'💳 Créd.',TD:'💳 Déb.','E Y TR':'💵+📱'};
+  const fpC={E:'green',TR:'blue',TC:'purple',TD:'amber'};
+  const tot=data.reduce((s,r)=>s+r[7],0);
+  return`<table>
+    <thead><tr><th>#</th><th>Fecha</th><th>Paciente</th><th>Tx</th><th>Cant</th><th>F. Pago</th><th>Mes</th><th>Saldo</th><th style="text-align:right;">Abono</th></tr></thead>
+    <tbody>
+      ${data.map(r=>`<tr>
+        <td style="font-size:9px;color:#cbd5e1;font-family:monospace;">${r[0]}</td>
+        <td style="font-family:monospace;font-size:9px;color:#94a3b8;">${r[1]}</td>
+        <td style="font-weight:700;color:#0f172a;">${r[2]}</td>
+        <td>${CH(r[3],'blue')}</td>
+        <td style="text-align:center;">${r[4]}</td>
+        <td>${CH(fpL[r[9]]||r[9]||'—',fpC[r[9]]||'gray')}</td>
+        <td>${CH(r[10],'gray')}</td>
+        <td>${r[8]>0?`<span style="font-weight:700;color:#dc2626;">${F(r[8])}</span>`:'<span style="color:#94a3b8;">—</span>'}</td>
+        <td style="text-align:right;font-size:11px;font-weight:800;color:#0f172a;">${F(r[7])}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr style="background:#f0fdf4;border-top:2px solid #e2e8f0;">
+      <td colspan="8" style="font-size:11px;font-weight:700;color:#334155;">${data.length} registros</td>
+      <td style="text-align:right;font-size:14px;font-weight:900;color:#059669;">${F(tot)}</td>
+    </tr></tfoot>
+  </table>`;
+}
+function filtrarCobros(mes){
+  COBROS_FILTER=mes;
+  const data=mes==='Todos'?PAGOS:PAGOS.filter(r=>r[10]===mes);
+  const b=document.getElementById('cobros-body');
+  if(b)b.innerHTML=renderCobros(data);
+  const t=document.getElementById('cobros-title');
+  if(t)t.textContent=mes==='Todos'?'Todos los registros':'Registros de '+mes+' ('+data.length+')';
+  document.querySelectorAll('#content .btn').forEach(btn=>{
+    const label=btn.textContent.trim();
+    if(['Todos','Enero','Febrero','Marzo','Abril','Mayo'].includes(label)){
+      btn.className='btn btn-'+(label===mes?'p':'o');
+      btn.style.cssText='font-size:9px;padding:3px 8px;';
+    }
+  });
+}
+
+// ── EGRESOS ───────────────────────────────────────────────
+function rExps(){
+  const tot=EGRESOS.reduce((s,r)=>s+r[4],0);
+  const catC={RENTA:'red',PAU:'amber',INSUMOS:'blue',LABORATORIO:'purple',GENERALES:'gray',ADMIN:'green',OTRO:'gray'};
+  const byMes={};EGRESOS.forEach(r=>{if(!byMes[r[5]])byMes[r[5]]=0;byMes[r[5]]+=r[4];});
+  const topMes=Object.entries(byMes).sort((a,b)=>b[1]-a[1])[0]||['—',0];
+  const rentaT=EGRESOS.filter(r=>r[3]==='RENTA').reduce((s,r)=>s+r[4],0);
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Egresos 2025</div>
+  <div class="page-sub">${EGRESOS.length} registros · Total: ${F(tot)}</div></div>
+  <div style="display:flex;gap:7px;">
+    <button class="btn btn-o" onclick="exportEgresos()">⬇ Exportar CSV</button>
+    <button class="btn btn-r" onclick="openEgreso()">📉 + Registrar egreso</button>
+  </div>
+</div>
+<div class="kgrid g3">
+  <div class="kcard" style="background:#fef2f2;border:1px solid #fecaca;">
+    <div style="font-size:8px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Total egresos 2025</div>
+    <div style="font-size:22px;font-weight:900;color:#0f172a;">${F(tot)}</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">${EGRESOS.length} registros</div>
+  </div>
+  <div class="kcard" style="background:#fffbeb;border:1px solid #fde68a;">
+    <div style="font-size:8px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Mes con más gasto</div>
+    <div style="font-size:22px;font-weight:900;color:#0f172a;">${topMes[0]}</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">${F(topMes[1])}</div>
+  </div>
+  <div class="kcard" style="background:#f8fafc;border:1px solid #e2e8f0;">
+    <div style="font-size:8px;font-weight:700;color:#334155;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">Renta acumulada</div>
+    <div style="font-size:22px;font-weight:900;color:#0f172a;">${F(rentaT)}</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">5 meses</div>
+  </div>
+</div>
+<div class="card">
+  <table>
+    <thead><tr><th>#</th><th>Concepto</th><th>Categoría</th><th>Mes</th><th>Fecha</th><th style="text-align:right;">Monto</th></tr></thead>
+    <tbody>
+      ${EGRESOS.map(r=>`<tr>
+        <td style="color:#cbd5e1;font-family:monospace;font-size:9px;">${r[0]}</td>
+        <td style="font-weight:600;color:#0f172a;">${r[2]}</td>
+        <td>${CH(r[3],catC[r[3]]||'gray')}</td>
+        <td>${CH(r[5],'gray')}</td>
+        <td style="font-family:monospace;font-size:9px;color:#94a3b8;">${r[1]}</td>
+        <td style="text-align:right;font-size:11px;font-weight:800;color:#0f172a;">${F(r[4])}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr style="background:#fef2f2;border-top:2px solid #fecaca;">
+      <td colspan="5" style="font-size:11px;font-weight:700;color:#334155;">TOTAL EGRESOS 2025</td>
+      <td style="text-align:right;font-size:15px;font-weight:900;color:#dc2626;">${F(tot)}</td>
+    </tr></tfoot>
+  </table>
+</div>`;
+}
+
+// ── DIVISIÓN ──────────────────────────────────────────────
+function rComm(){
+  const T=calcT(),M=calcMonthly();
+  const neto=T.cons-T.egr;
+  return`
+<div class="row-hd">
+  <div><div class="page-title">División 60% / 40%</div>
+  <div class="page-sub">Dra. Andrea · Consultorio · ${PAGOS.length} registros</div></div>
+  <button class="btn btn-o" onclick="exportPagos()">⬇ Exportar CSV</button>
+</div>
+<div class="kgrid g3">
+  ${[[F(T.ing),'Ingreso bruto','#f8fafc','#e2e8f0','#0f172a'],
+     [F(T.and),'60% Dra. Andrea','#eff6ff','#bfdbfe','#2563eb'],
+     [F(T.cons),'40% Consultorio','#f0fdf4','#bbf7d0','#059669']].map(([v,l,bg,bc,tc])=>`
+  <div class="kcard" style="background:${bg};border:1px solid ${bc};">
+    <div style="font-size:8px;font-weight:700;color:${tc};text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${l}</div>
+    <div style="font-size:24px;font-weight:900;color:${tc};">${v}</div>
+  </div>`).join('')}
+</div>
+<div class="card cp" style="margin-bottom:11px;">
+  <div class="ctitle">Desglose mensual</div>
+  <table>
+    <thead><tr><th>Mes</th><th>Ingresos</th><th>60% Andrea</th><th>40% Consultorio</th><th>Egresos</th><th>Neto consultorio</th><th># tx</th></tr></thead>
+    <tbody>
+      ${M.map(m=>{const n=m.consult-m.egr;return`<tr>
+        <td style="font-weight:700;color:#0f172a;">${m.mes}</td>
+        <td style="font-weight:700;">${F(m.ing)}</td>
+        <td style="color:#2563eb;font-weight:600;">${F(m.andrea)}</td>
+        <td style="color:#059669;font-weight:600;">${F(m.consult)}</td>
+        <td style="color:#dc2626;">${F(m.egr)}</td>
+        <td style="font-weight:800;color:${n>=0?'#059669':'#dc2626'};">${F(n)}</td>
+        <td style="color:#94a3b8;text-align:center;">${m.reg}</td>
+      </tr>`;}).join('')}
+    </tbody>
+    <tfoot><tr style="background:#f0fdf4;border-top:2px solid #e2e8f0;">
+      <td style="font-weight:800;">TOTAL</td>
+      <td style="font-weight:900;">${F(T.ing)}</td>
+      <td style="font-weight:900;color:#2563eb;">${F(T.and)}</td>
+      <td style="font-weight:900;color:#059669;">${F(T.cons)}</td>
+      <td style="font-weight:900;color:#dc2626;">${F(T.egr)}</td>
+      <td style="font-weight:900;color:${neto>=0?'#059669':'#dc2626'};">${F(neto)}</td>
+      <td style="font-weight:700;text-align:center;">${T.reg}</td>
+    </tr></tfoot>
+  </table>
+</div>
+<div class="dark-box">
+  <div style="font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;">Distribución acumulada 2025</div>
+  <div style="display:flex;gap:2px;height:18px;border-radius:10px;overflow:hidden;margin-bottom:13px;">
+    <div style="flex:60;background:#3b82f6;"></div>
+    <div style="flex:40;background:#10b981;"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;">
+    ${[['60% Dra. Andrea',F(T.and),'#60a5fa'],['40% Consultorio',F(T.cons),'#34d399'],
+       ['Neto (40%−egr)',F(neto),neto>=0?'#34d399':'#f87171'],
+       ['Egresos totales',F(T.egr),'#f87171'],['Saldo pendiente',F(T.saldo),'#fbbf24'],
+       ['Total registros',T.reg+' tx','#94a3b8']].map(([l,v,c])=>`
+    <div><div style="font-size:8px;color:#475569;">${l}</div>
+    <div style="font-size:15px;font-weight:900;color:${c};margin-top:2px;">${v}</div></div>`).join('')}
+  </div>
+</div>`;
+}
+
+// ── REPORTES ──────────────────────────────────────────────
+function rRep(){
+  const T=calcT(),M=calcMonthly(),tops=topTx(),formas=topFormas();
+  const neto=T.cons-T.egr;
+  const bestMes=M.sort((a,b)=>b.ing-a.ing)[0]||{mes:'—',ing:0};
+  M.sort((a,b)=>['Enero','Febrero','Marzo','Abril','Mayo'].indexOf(a.mes)-['Enero','Febrero','Marzo','Abril','Mayo'].indexOf(b.mes));
+  return`
+<div class="row-hd">
+  <div><div class="page-title">Reportes 2025</div>
+  <div class="page-sub">${T.reg} registros · datos reales del Excel</div></div>
+  <div style="display:flex;gap:7px;flex-wrap:wrap;">
+    <button class="btn btn-o" onclick="exportPagos()">⬇ Cobros CSV</button>
+    <button class="btn btn-o" onclick="exportEgresos()">⬇ Egresos CSV</button>
+    <button class="btn btn-o" onclick="exportPacientes()">⬇ Pacientes CSV</button>
+  </div>
+</div>
+<div class="kgrid g4">
+  ${[[F(T.ing),'Ingreso bruto',T.reg+' cobros','#eff6ff','#bfdbfe','#2563eb'],
+     [F(T.egr),'Egresos',EGRESOS.length+' registros','#fef2f2','#fecaca','#dc2626'],
+     [F(neto),'Neto consultorio','40% − egresos','#f0fdf4','#bbf7d0','#059669'],
+     [bestMes.mes,'Mejor mes',F(bestMes.ing),'#fffbeb','#fde68a','#d97706']].map(([v,l,s,bg,bc,ac])=>`
+  <div class="kcard" style="background:${bg};border:1px solid ${bc};">
+    <div style="font-size:8px;font-weight:700;color:${ac};text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;">${l}</div>
+    <div style="font-size:19px;font-weight:900;color:#0f172a;">${v}</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">${s}</div>
+  </div>`).join('')}
+</div>
+<div class="tcol" style="margin-bottom:11px;">
+  <div class="card cp">
+    <div class="ctitle">Top tratamientos por ingreso</div>
+    ${tops.slice(0,9).map((t,i)=>`
+    <div style="margin-bottom:9px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px;align-items:center;">
+        <span style="display:flex;align-items:center;gap:6px;">
+          <span style="font-size:9px;font-weight:800;color:#cbd5e1;width:13px;">${i+1}</span>
+          <span style="font-size:10px;font-weight:600;color:#334155;">${t.k}</span>
+        </span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:8px;color:#94a3b8;">${Math.round(t.v/T.ing*100)}%</span>
+          <span style="font-size:10px;font-weight:800;color:#0f172a;">${F(t.v)}</span>
+        </span>
+      </div>
+      <div class="bar-bg"><div class="bar-fill" style="background:${PAL[i%PAL.length]};width:${Math.round(t.v/tops[0].v*100)}%;"></div></div>
+    </div>`).join('')}
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="card cp">
+      <div class="ctitle">Formas de pago</div>
+      ${formas.map(f=>`
+      <div style="margin-bottom:9px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+          <span style="font-size:10px;color:#334155;">${f.label}</span>
+          <span style="font-size:10px;font-weight:700;">${F(f.val)}</span>
+        </div>
+        <div class="bar-bg"><div class="bar-fill" style="background:#2563eb;width:${f.pct}%;"></div></div>
+        <div style="font-size:8px;color:#94a3b8;text-align:right;margin-top:1px;">${f.pct}%</div>
+      </div>`).join('')}
+    </div>
+    <div class="dark-box">
+      <div style="font-size:8px;font-weight:700;color:#475569;text-transform:uppercase;margin-bottom:10px;">Resumen ejecutivo</div>
+      ${[['Ingresos',F(T.ing),'#60a5fa'],['60% Andrea',F(T.and),'#34d399'],
+         ['40% Consult.',F(T.cons),'#a78bfa'],['Egresos','−'+F(T.egr),'#f87171'],
+         ['Neto',F(neto),neto>=0?'#34d399':'#f87171'],['Margen',Math.round(neto/T.cons*100)+'%','#fbbf24'],
+         ['Saldo pend.','−'+F(T.saldo),'#fbbf24'],['Pacientes',calcPaxMap().length+' únicos','#60a5fa']].map(([l,v,c])=>`
+      <div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1e293b;">
+        <span style="font-size:9px;color:#475569;">${l}</span>
+        <span style="font-size:11px;font-weight:800;color:${c};">${v}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>`;
+}
+
+// ── FLUJO ─────────────────────────────────────────────────
+function rFlujo(){
+  const steps=[
+    {ic:'📞',t:'Paciente contacta',d:'Recepcionista crea el perfil del paciente. Ej: Christian Vázquez llegó como nuevo en enero.',rol:'Recepcionista',btn:'+ Nuevo paciente',fn:'openNuevoPaciente()',col:'#3b82f6'},
+    {ic:'📅',t:'Se agenda la cita',d:'Se asigna slot, tratamiento y duración. La Dra. Andrea atiende lunes, martes y jueves.',rol:'Dra. Andrea',btn:'+ Nueva cita',fn:'openNuevaCita()',col:'#10b981'},
+    {ic:'🦷',t:'Consulta y diagnóstico',d:'Dra. Andrea registra diagnóstico, actualiza odontograma FDI y deja nota clínica.',rol:'Dra. Andrea',btn:'+ Nueva nota',fn:"setEtab('notas');go('expediente')",col:'#8b5cf6'},
+    {ic:'💊',t:'Tratamiento realizado',d:'Se ejecuta el procedimiento: TXCA, EXT, IV, ORT, CA, etc.',rol:'Dra. Andrea',btn:'Ver expediente',fn:"go('expediente')",col:'#ec4899'},
+    {ic:'💳',t:'Cobro registrado',d:'Paciente paga. Se registra: tx, cantidad, abono y forma de pago. Saldo queda anotado si aplica.',rol:'Dra. Andrea / Admin',btn:'+ Registrar cobro',fn:'openCobro()',col:'#2563eb'},
+    {ic:'💰',t:'División 60/40 automática',d:'El sistema calcula al instante: 60% Andrea y 40% Consultorio por cada cobro.',rol:'Sistema automático',btn:'Ver división',fn:"go('commissions')",col:'#059669'},
+    {ic:'📊',t:'Dashboard y reportes',d:'La Dra. Andrea ve ingreso bruto, su 60%, el neto del consultorio y los egresos.',rol:'Dra. Andrea',btn:'Ver reportes',fn:"go('reports')",col:'#d97706'},
+    {ic:'📉',t:'Registro de egresos',d:'Renta $4,500 · PAU $3,050 · Insumos · Laboratorio. El neto se calcula automáticamente.',rol:'Administrador',btn:'+ Registrar egreso',fn:'openEgreso()',col:'#64748b'},
+  ];
+  return`
+<div style="text-align:center;margin-bottom:22px;">
+  <div style="display:inline-block;padding:2px 12px;border-radius:99px;background:#eff6ff;border:1px solid #bfdbfe;font-size:9px;font-weight:700;color:#2563eb;margin-bottom:8px;">FLUJO OPERATIVO</div>
+  <div class="page-title">Del primer contacto al reporte financiero</div>
+  <div class="page-sub" style="margin-top:4px;">Ciclo completo · Haz clic en cada botón para ir al módulo</div>
+</div>
+<div style="display:flex;flex-direction:column;max-width:680px;margin:0 auto;">
+  ${steps.map((s,i)=>`
+  <div class="flow-step">
+    <div class="flow-line">
+      <div class="flow-circle" style="background:${s.col};color:#fff;box-shadow:0 2px 10px ${s.col}40;">${s.ic}</div>
+      ${i<steps.length-1?`<div class="flow-conn" style="background:linear-gradient(to bottom,${s.col},${steps[i+1].col});"></div>`:''}
+    </div>
+    <div class="flow-body">
+      <div class="flow-inner">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:9px;">
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
+              <span style="font-size:8px;font-weight:700;color:${s.col};background:${s.col}15;padding:1px 7px;border-radius:99px;">Paso ${i+1}</span>
+              <span style="font-size:12px;font-weight:800;color:#0f172a;">${s.t}</span>
+            </div>
+            <div style="font-size:10px;color:#475569;line-height:1.7;">${s.d}</div>
+          </div>
+          <div style="flex-shrink:0;text-align:right;min-width:130px;">
+            <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:3px;">Responsable</div>
+            <div style="font-size:10px;font-weight:700;color:#334155;margin-bottom:7px;">${s.rol}</div>
+            <button class="btn btn-p" style="font-size:8px;padding:4px 9px;background:${s.col};" onclick="${s.fn}">${s.btn}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`).join('')}
+</div>`;
+}
+
+// ── ROLES ─────────────────────────────────────────────────
+function rRoles(){
+  const roles=[
+    {r:'Dra. Andrea (Titular)',ic:'👑',col:'#7c3aed',bg:'#f5f3ff',bc:'#ddd6fe',badge:'Acceso total',px:['Todos los cobros e ingresos','Registrar pagos y abonos','Ver su 60% en tiempo real','Dashboard financiero completo','Editar expedientes clínicos','Exportar todos los reportes']},
+    {r:'Administrador',ic:'⚙️',col:'#2563eb',bg:'#eff6ff',bc:'#bfdbfe',badge:'Operativo',px:['Dashboard y reportes','Gestión de pacientes','Registrar cobros y egresos','División 60/40 visible','Exportar a CSV']},
+    {r:'Recepcionista',ic:'📅',col:'#d97706',bg:'#fffbeb',bc:'#fde68a',badge:'Agenda y pacientes',px:['Agendar y gestionar citas','Alta de nuevos pacientes','Cambiar estados de citas','Ver agenda completa','Expediente en modo lectura']},
+    {r:'Cajero/a',ic:'💳',col:'#0284c7',bg:'#f0f9ff',bc:'#bae6fd',badge:'Módulo cobros',px:['Registrar cobros y abonos','Ver saldo de pacientes','Historial de cobros del día','Sin acceso a división 60/40','Sin reportes financieros']},
+    {r:'Asistente Clínica',ic:'🩺',col:'#ec4899',bg:'#fdf2f8',bc:'#fbcfe8',badge:'Clínica',px:['Agenda en modo lectura','Datos básicos del paciente','Estado de sala de espera','Sin acceso financiero','Sin reportes']},
+    {r:'Solo lectura',ic:'👁️',col:'#64748b',bg:'#f8fafc',bc:'#e2e8f0',badge:'Consulta',px:['Ver pacientes (sin editar)','Ver agenda (sin modificar)','Sin cobros ni egresos','Sin reportes','Sin exportación']},
+  ];
+  return`
+<div style="text-align:center;margin-bottom:18px;">
+  <div class="page-title">Roles y accesos</div>
+  <div class="page-sub" style="margin-top:4px;">6 roles con permisos granulares · haz clic en una tarjeta</div>
+</div>
+<div class="role-grid">
+  ${roles.map(r=>`
+  <div class="role-card" style="background:${r.bg};border:1.5px solid ${r.bc};" onclick="toast('Editando rol: ${r.r}')">
+    <div style="font-size:26px;margin-bottom:7px;">${r.ic}</div>
+    <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:3px;">${r.r}</div>
+    <div style="display:inline-block;padding:2px 9px;border-radius:99px;background:${r.col}20;color:${r.col};font-size:8px;font-weight:700;margin-bottom:12px;">${r.badge}</div>
+    ${r.px.map(p=>`<div class="perm-row">
+      <div class="pcheck" style="background:${r.col};">✓</div>
+      <span style="font-size:10px;color:#334155;line-height:1.5;">${p}</span>
+    </div>`).join('')}
+  </div>`).join('')}
+</div>`;
+}
+
+// ═══════════════════════════ INIT ════════════════════════════
+// Render pax table after content is injected (uses event delegation)
+document.getElementById('content').addEventListener('DOMNodeInserted',()=>{
+  if(PAGE==='patients')setTimeout(renderPaxTable,0);
+});
+buildSidebar();
+go('dashboard');
+</script>
+</body>
+</html>
