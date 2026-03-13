@@ -286,6 +286,11 @@ tr:hover td{background:#f8fafc;}
       <div class="fg"><label>Teléfono</label><input type="tel" id="p-tel" placeholder="55 xxxx xxxx"></div>
       <div class="fg"><label>Edad</label><input type="number" id="p-edad" placeholder="Años" min="1" max="120"></div>
     </div>
+    <div class="fg"><label>Doctor asignado</label>
+      <select id="p-dr">
+        ${Object.values(DOCTORS).map(d=>`<option value="${d.code}">${d.name} (${d.code})</option>`).join('')}
+      </select>
+    </div>
     <div class="fg"><label>Correo electrónico (opcional)</label><input type="email" id="p-email" placeholder="correo@ejemplo.com"></div>
     <div class="fg"><label>Motivo de primera consulta</label>
       <select id="p-motivo">
@@ -641,19 +646,181 @@ let NOTAS_EXP=[
 {id:4,fecha:'08/04',tx:'EXT',monto:1800,nota:'3 extracciones piezas 15,16,17 bajo sedación IV. Sin complicaciones. Indicaciones post-extracción.',locked:true},
 ];
 
+const PAX_LISTA=[
+  "Alejandro Acevedo Martínez","María Inés Acosta Castro","Denni Jaziel Acosta López","Liam Yahir Acosta Ramírez","Ángela Teresa Acosta Rodríguez","Omar Franco Acosta Alvarez a","Miguel Ángel Acosta Santana","Santiago Acosta Santana","Dominic Jezrael Aguirre Dueñas","Luis Carlos Aguiñaga de la Mora",
+  "Emma Aguiñaga Rodriguez","Yadiel Aguiñaga Reyes","Osiel Isahi Aguilera Rodríguez","Renata Michelle Aguilar Floriano","Kenly Citlaly Aguilar Escobedo","Jesús Mario Alarcón García","Camila Alba Fierros","Valentina Alba Pérez","Julia Jimena Alba Rodríguez","Juan Ángel Alcantar Ornelas",
+  "Jonathan Alcantar Ornelas","Elida Alcantar Rivera","Victor Giancarlo Alejos Aranguren","Genesis Alfaro Alfaro","Mariana Alonso Guerrero","Samantha Alonso de Luna","Santiago Alvarado Macias","Pablo Alonso Alvarez Bernal","Valeria Álvarez Cardona","Martha Cristina Alvarez",
+  "Juan Pablo Alvarez Luevano","Santiago Alvarez Luevano","Bruno Matías Alvarado Barrón","Fernanda Marianella Amaya Robles","Leonardo Xavier Andrade Campos","Juan Carlos Andrés Contreras","Mateo Arrioja Tafoya","Esteban Miguel Arenas Martínez","Juan Carlos Araiza Ramírez","Luna Amelie Aragon Muñoz",
+  "Jesús Alberto Arévalo","Luciana Armendáriz Gutiérrez","David Froylan Ávila Zermeño","Isabella Ávalos Rodríguez","Dario Avila Escobar","Edgar Daniel Avila Zermeño","Allison Jashlin Badillo Esparza","Andrik Emiliano Badillo Esparza","Aiden Alexander Báez Ruiz","Ximena barajas García",
+  "Adal Gael Barajas Esquivel","Sofia Cristina Barajas Santillán","Ariana Sofia Barba Macías","Danna Sophia Barba Cortez","Renata Guadalupe Barcenas Morales","Grecia Amairani Barco Luevano","Alexi Paola Barrera Martinez","Kimberly Gabriela Barrón Martínez","María Fernanda Basañez García","Dante Erubiel Bastidos Santiago",
+  "Niza Yunuhaly Bastidas Santiago","Minerva Calipso Becerra Romero","Ashley Belmares Pizaña","María Fernanda Benítez González","Natalia Estefanía Berdin Sandoval","Nicole Bernal Santos","Diego Daniel Bernal Martínez","Matías Silem Bernabé Amaya","Florianne Zoe Bravo Castillo","Kislev Bravo Castillo",
+  "Gisellle Bravo Sánchez","José Emilio Briano Velázquez","Kenia Briones Jayme","Rafael Bueno de Anda","Ángel Armando Bustamante Jiménez","Emilio André Bustamante Jiménez","Dante Arturo Bustos García","Sebastián Haniel Cabañas Gómez","Anthony Cabrales Ponce","Iker Esau Caldera Rodríguez",
+  "Leonardo Calderón Martín","Kin Calvillo Quintero","Maya Calvillo Quintero","Anthony Guadalupe Camacho Rodríguez","Fernando Campos Amaro","Leonardo Campos Amaro","Fabio Santiago Campos Gallegos","Sofía Anahí Campos López","Jeremy Itzael Campos","Said Emmanuel Campos Rosales",
+  "Guillermo Sebastián Campos Serrano","Ana Yaretzi Cano Menelly","Samara Capuchino López","Daniel Capuchino Padilla","Santiago Cárdenas Ramírez","Dalila Cardenas Ayala","Caleb Samuel Cardenas Yáñez","Arturo Ramses Carmona Martínez","Javier Alejandro Carmona Martínez","Sebastián Carrión Rocha",
+  "Camila Carretero Dorantes","Juan Pablo Castañeda Esquivel","Ángel Mateo Castañeda Ibarra","Frida Valeria Castañeda Ibarra","Maximiliano Castañeda López","Jonathan Alejandro Castañeda Castañeda","Rene Castillo Ramírez","José Leonel Castillo Solís","Sebastián Castorena Huitrado","Darío Castorena Huitrado",
+  "Emiliano Castorena Ibarra","Abril Castro Arenas","Isaí Tadeo Castro Díaz de León","Naomi Castro Sanchez","Julio César Castro Zambrano","Santiago Cazares Salazar","Erick Alejandro Ceballos García","Gabriel Alexander Ceballos Rivera","Jessica Giselle Centeno Salazar","Victoria Cervantes Arroyo",
+  "Victoria Cervantes Reyes","Martín Santiago Cervantes Díaz","Diego Matías Cervantes Díaz","María Pía Cervantes Reyes","América Michel Charcas Hernández","Eunice Chavarría Mayora","Julián Chávez Ramírez","Paola Chiquito Díaz de León","Ana Sofía Cisneros Tavares","Allison Colin Roque",
+  "Víctor Manuel Colmenero Sánchez","Paula Contreras Barajas","Lizi Guadalupe Contreras García","Ana Isabella Contreras Muñoz","Emilie Valentina Cortes Aguilera","Elena Cortes Carranza","Angel Saul Cortes Landin","Aylin Cortes Mandujano","Sebastian Covarrubias Medina","Ashley Covarrubias Gutiérrez",
+  "Edson Israel Cruz Collazo","Gabriela Nicole Cruz Herrera","Frida Camila Cruz González","Emilio Antonio Cruz González","Emilia Cruz Quiroz","Ricardo Daniel Cruz Zamarripa","Laila Valentina Cuesta Jimenez","Mererid Betzabeth Cuevas Chávez","Eleonor Sofia Cuna Valencia","Santiago Alejandro Chávez Monreal",
+  "Eduardo Chiquito Díaz de León","Melanie Davila Martínez","Natalia Dávila Torres","Leonardo de Alva Saavedra","Jorge Vladimir de Alba Saavedra","Diana Paulina de Anda Macías","Santiago de la Cruz Rangel","Santiago de la Rosa de la Torre","Camilo de la Rosa Grimaldi","Isabella de La Rosa Grimaldi",
+  "Roxanna Janeth De la Rosa Herrera","José Maria de la Torre Zamora","Erandi Camilo de León Villanueva","Daniel de Lira Avelar","María José De Loera Escalante","Braily Yahir Delgadillo Romo","Isaac Yael Delgadillo Romo","María Guadalupe Delgado Hernández","María Belén Delgado Hernández","Renata Guadalupe Delgado Lara",
+  "Cristian de Jesús Delgado Serrano","Karla Mariel Díaz Álvarez","Mauricio Díaz Díaz de León","Carolina Montserrat Días Díaz de León","Luis Ángel Díaz Gutiérrez","Liam Leonel Díaz de León Solario","Yoltzin Díaz Hernández","Itzhae Díaz Jiménez","Evelyn Arlette Díaz de León Palomino","Luis Eduardo Díaz Sifuentes",
+  "Dayron Isaac Diosdado Roman","Fatima Constanza Domínguez Zamarripa","Abraham Cael Dos Santos Pulido","Benjamin A Dos Santos Pulido","Citlalli Judith Duran Avelar","Regina Duran Carrillo","Kevin Isaac Duran Roque","Ana Victoria Díaz Jiménez","Victoria Enríquez De Lizaola","Tadeo Enríquez Hernández",
+  "Juan Pablo Escalera Esquivel","Fernando Jacob Escalera Martínez","Jade Paulette Escalera Requenez","Helena Escobar Garcia","Alicia Esparza Corral","Amaya Romina Esparza De Lira","Alexia Ainara Esparza Estrada","Geraldine Scarlett Esparza Gámez","Said Eduardo Esparza Gámez","Dylan Emmanuel Esparza Gaytán",
+  "Karol Guadaluoe Esparza Espinoza","Brandon Jared Esquipula Ocampo","Morgan Esquivel Encina","Javier Estrada Estrada","Kendall Antonio Estrada Torres","Ian Nicolas Flores Campos","Maya Jatzibe Flores Castro","Paula Carolina Flores Díaz","Santiago Yanel Flores Gallegos","Regina Flores Jimenez",
+  "Valeria Flores Martínez","Nathaly Araceli Flores Martinez","Arturo Flores Ochoa","Paulo Flores Ochoa","Andre Leonardo Flores Rodriguez","Marian Flores Sanchez","Mariel Flores Sánchez","Michelle Flores Sánchez","Eitan Jesús Flores Zúñiga","Lya Jacqueline Frausto Mendoza",
+  "Emily Nikol Frausto Reyna","Samuel Frías Herrera","Frida Sophia García Elias","Rafael Galán González","Javier Galán González","Gael Santiago Gallardo Guerra","Mauricio Raziel Gallegos Ballin","Sebastián Gálvez Ramírez","Sofía Gamboa López","Víctor Leon Gaona Cortes",
+  "Renata Montserrat García Barrón","Eduardo Santiago García Castillo","Luis David García Cruz","Barbara Elaine García Esquivel","Mariana García Flores","Alison Victoria García González","Gisela García González","Dylan Armando García Hernández","Sofía García Hernández","José Manuel García López",
+  "Constanza Maribel García López","Íker David García López","Jaden Emmanuel García Macías","Annya Victoria García Magaña","Montserrat García Ramírez","Angela Renata García Reyes","Emilio Baudel García Reyes","Amaya García Rodríguez","Hanna Regina García Sanchez","Danna Sofia García Sanchez",
+  "Noah Leonardo García Vela","Julieta Merit García Ventura","Alejandro García Vital","Keiry Gaytán","Ana Victoria Gaytán López","Rey Salvador Gil Delgadillo","Zoé Ktharine Girón Medina","Manu Fernando Gómez Breceda","Mateo Eduardo Gómez Breceda","Kaleb Gómez Macías",
+  "Auden Gómez Macías","Victoria Esperanza Gómez Marquina","Ricardo Fabricio Gómez Moreno","Luis Jacob Gómez Ramírez","Karen Jocelyn Gómez Ramírez","Alberto Gómez Villalobos","Paula Gómez Villalobos","María Fernanda González Arellano","Dana Gabriela González Arellano","Alan González Barcenas",
+  "Leonardo G. González De Alba","Nestor Santiago González Anaya","Rene Santiago González Espinosa","Sara González Hernández","Benjamin González López","Obed Gregorio González Macías","Mariana Janeth González Mendoza","González Mendoza Belen Ariadna","González Ponce Victoria","González Romo Elsa M",
+  "González Ruiz Ángel de Jesús","González Ruiz Patricio","Goto Verá Akane","Grandes Breceda Arturo","Grajeda Breceda Emilio Alejandro","Guadarrama Calderon Christopher Gael","Guerrero Aguilar Esteban Alejandro","Guerrero Aguilar Fernando Damián","Guerrero Mendoza Genaro Sebastián","Guerrero Morales Gabriela Lizeth",
+  "Guerrero Ortiz Israel","Guerrero Palomino Ximena","Guevara Macías Lizeth Dannae","Gutierrez Esparza Mariela Lizette","Gutierrez Esparza Pablo","Gutierrez García Samantha","Gutierrez González Sophia Renata","Gutiérrez González Leonardo Gael","Gutiérrez Gutiérrez Víctor Alberto","Gutiérrez López Camila",
+  "Gutiérrez Lozano Pedro Gilberto","Gutiérrez Moreno Penelope","Gutierrez Ramírez Fátima Carolin","Gutierrez Torres Karol Melissa","Gutierrez Trinidad Renata","Gutierrez Trinidad Diego Antonio","Gutierrez aventura Hugo André","Gutierrez Ventura Ivanna Valentina","Gutierrez Villalobos Diego","Guzman Calderon Christopher Manuel",
+  "Guzman Ornelas Lorena","Guzman Torrez Keiry Victoria","Haro Ruiz Dania Estefanía","Heredia Villarreal Josef Jared","Heredia Villarreal Carol Montserrath","Herrera Bocardo Regina Arleth","Hernandez Arceo Ian Jared","Hernández Cuevas Eleni Victoria","Hernández De la Rosa Santiago","Hernandez Diaz Roberto Mateo",
+  "Hernandez Diaz Patricio","Hernández Gallegos Luis Rodolfo","Hernandez Gallegos Joaquin Jesus","Hernandez Gutierrez Julia Maria","Hernández Gutiérrez Gabriela Valentina","Hernández Floriano Aldo Mateo","Hernández Hernández Dominik","Hernández Martínez Emiliano","Hernández Martínez Andrea","Hernández Modesto Ángel Mateo",
+  "Hernández Modesto Celina","Hernandez Muro José Mateo","Hernández Ortega Oliver André","Hernández Reyes Santiago","Hernández Rivera Emma","Hernández Santillán Gabriela Angelique","Hernández Villalobos Humberto","Huerta Delgado Kenya Vanessa","Huerta Guerrero Damián","Huerta Ibáñez Ian Esteve",
+  "Huitrado Macías Dominic","Huizar González Dylan Jared","Ibarra Medina Éric Santiago","Ibarra Medina Allizon Guadalupe","Ibarra Pérez Iker Danilo","Ibarra Pérez Renata","Jaime Enríquez Nathalia Sofía","Jaime Medina Carlos Esteban","Jasso Pardo Zoé Alejandra","Jáuregui Ramírez Nelly Dayana",
+  "Jiménez Alcantar José Miguel","Jiménez Alcantar Pedro Alonso","Jiménez Jiménez Luis Armando","Jiménez Quiñones Aaliyah del Carmen","Jimenez Quiñones Aamir Sebastián","Jimenez Ramírez Francisco Alexander","Juárez de Lira Amelia","Juárez Flores Valeria Romina","Juárez Mauricio Nancy Naomi","Juárez Navarro Miguel Alexander",
+  "Juárez Tostado Mia Isabel","Juarez Gallegos Juan Pablo","Landin Arevalo Emma Lucia","Landois Zertuche Luis David","Lara Alonzo Eduardo","Lara Álvarez Juan Pablo","Lara Álvarez Karol Pavbva","Lara García Leonardo","Lara Guzmán Mauro Samuel","Lara Guzmán Carlos Tadeo",
+  "Lara Martínez José Amir","Lara Russell Sydney Shannell","Lara Russell Angel Matthew","Larios Guerrero Roxana Ahmed","Legaspi Ramírez Alexia Yamileth","Licon Lara Sheisy Hetzemany","Limón Huerta Mateo Alejandro","Llamas Acero Samara","Llamas Acero Ana Paula","Lona Jiménez Romina",
+  "Lona Jiménez Carmina","Lopez Aguilera Regina","Lopez Arenas Helena Concepcion","Lopez Arias Luis Fernando","Lopez Carrillo Efrain","Lopez Carrillo Emmanuel","Lopez Contreras Valentina","Lopez De Lara Barba Franco","Lopez de Lara Barba Regina","Lopez Escamilla Álvaro",
+  "López Esparza Geraldine Thaily","Lopez Garzon Aldo Matías","López González Melissa","López González Julia","López Lara Renata Betsabe","Lopez Lomelí Mónica Isabella","Lopez Lopez Carlos","López López Lucian Mateo","López Morales Iliana Sofía","López Navarro Mateo",
+  "López Nieto Antonio Ramses","López Oropeza María Regina","López Perea Isis Melina","López Pérez Héctor Saúl","López Rangel Máximo Raziel","López Reyes Lían André","López Romero Oscar Germán","López Romero Sara Ximena","López Solano Estefanía","López Torres Emiliano",
+  "López Torres Leonardo","López Torres María Paula","López Velasco Karla Angelica","López Villalpando Ximena","López Viscencio Renata","López Visencio Regina","Lozano Escobedo Diego Alejandro","Lucero Sánchez Jimmy Jahir","Lugo Meza Christian Arturo","Luevano Lupercio Alyson Andrea",
+  "Luevano Santana Jonathan de Jesús","Lujano Guizar Víctor","Macías Alfaro Miriam Fernanda","Macías Campos Ana Karen","Macías Córdova Hendrick Leonel","Macías Corral Zoé","Macías Durán Renata","Macías Flores Sofía Giselle","Macías Gutiérrez Ximena Alejandra","Macías Lozano Fabio Isaac",
+  "Macías Mireles Diego Alejandro","Macías Muñoz Ian Matías","Macías Regalado Emily","Macías Vargas Danna Lorena","Maho Rendón María José","Maho Rendón Fernando","Maho Rendón Ismael","Maho Rendón Andrea Isabel","Maldonado Alba Lisa Andrea","Maldonado Dávila Jordan",
+  "Maldonado Espinoza Emma Regina","Maldonado Espinoza Jennifer Alexa","Maldonado Espinoza Eva Naomi","Maldonado Juárez Luis Leonardo","Maldonado Juárez Arilu","Malo Esparza Andrea Jaqueline","Manríquez Roque Renata Ailinne","Marin Ponce Romina","Marquez Andrade Maria Elena","Martell Gutierrez Martha Elisa",
+  "Martell Ramirez Maria Paula","Martell Sanchez Joana","Martin del Campo Chinchillas Andres","Martin del Campo Chinchillas Karla Lucia","Martinez Aguilar Bianca Guadalupe","Martinez Alvarez Carlo Julian","Martínez Anaya Darío Elíam","Martínez Anaya Leonardo Dariel","Martínez Aguilar José Eduardo","Martínez Araujo César Alejandro",
+  "Martínez Arias Ivanna Yanixan","Martínez Delgado Diego Tadeo","Martínez De La Cruz Daniel Isaí","Martínez Delgado Edwin Yael","Malagon Rosales Jun","Manríquez Roque Héctor Zuriel","Martínez De la Mora Maximiliano","Martínez Díaz de León Darío Emiliano","Martínez Esparza Mauro Mateo","Martínez Esparza Victoria Isabella",
+  "Martínez Flores Stephanie","Martínez Garcia Francisco Javier","Martínez Juárez Pablo Mateo","Martínez López Carla Sofía","Martínez Mejía Jacqueline Estefanía","Martínez Muñoz Ángel Daniel","Martínez Muñoz Arami Laritza","Martínez Núñez Horlando Guadalupe","Martínez Reza Diego","Martínez Reza Emmanuel",
+  "Martínez Reza María José","Martínez Rivera Karen Sofía","Martínez Rivera Ibraham Alejandro","Martínez Santana Kendra Lineth","Martínez Santos José Manuel","Martínez Yitani Sebastián","Mata Araiza Samuel David","Maya Larios Luis Leonel","Mayoral Reyes María Isabel","Santiago Medina Héctor",
+  "Medina Gallegos Camilo Victoria","Medina Gómez Mateo Sebastián","Medina Montes Juan Alejandro","Medina Ornelas Julieta","Medina Palencia Julieta","Medina Velázquez Melany","Medrano Álvarez Lucrecia","Medrano Cervantes María Paula","Meléndez Durón Andrea","Mencias Ruiz Esparza Leonardo",
+  "Méndez García José Manuel","Méndez García Santiago","Méndez Nieto Omar de Jesús","Mendoza Mayorga Gabriel","Mercado Badillo Carlos Mercado","Mercado Caldera Luis Gerardo","Meza Arredondo Alondra","Meza Arredondo Alexa","Martínez Jiménez Marina","Maysen Emma Sophia",
+  "Meza Arredondo Andrea","Meza Muñoz Luis Fernando","Miranda Márquez Licsel Ivanna","Miranda Rangel Alejandro","Mireles García Grecia Nikole","Mojica Díaz Fátima y Ana Carol","Mojica Díaz Gabriela Janine","Monroy Espinosa Alan Manuel","Monroy Torres Mía","Montalvo Collazo María Renata",
+  "Montalvo Collazo Daniel Nicolás","Montañez Delgado Cinthya Rafaela","Montañez Muñoz Paula Sofía","Montes Acosta Juan Pablo","Montes Cortez Milton Isaac","Montes Jiménez Ángel Andrés","Montes Jiménez Roy","Montes Valdés Hiram Karin","Montiel Muñoz Aitana Aislinn","Montoya Díaz Fernando",
+  "Montoya Lozano Tadeo Martín","Montoya Marquina Dulce Alexandra","Mora Carreón Aitana Cristina","Mora Carreón Laia Sofía","Mora Cuevas Alejandra","Mora De Lizaola Cesar Humberto","Mora de Lizaola Sofía","Mora de Lizaola Aldo Alonso","Morales Contreras Salvador","Morales Contreras Matías",
+  "Morales Contreras José Luis","Morales Contreras Adrián","Morales Marín Juan Francisco","Morales Romero Ivanna","Morales Romero Bruno","Moran Acosta Mateo","Moreno Oyarzabol Ximena","Moreno Torres Miranda","Morones Lara Marian Alejandra","Muñoz Díaz Juan Pablo",
+  "Muñoz Díaz Víctor Manuel","Muñoz Gutiérrez Melanie","Muñoz Hernandez Cristopher","Muñoz Hernandez Haydee Montserrat","Muñoz Hernández Sebastián de Jesús","Muñoz Jiménez Cristopher","Muñoz Luna Julieta","Muñoz Macías Caylee","Muñoz Ramírez Dulce María","Muñoz Rodríguez Melanie Paulette",
+  "Muñoz Rodríguez María José","Muñoz Salazar Mario Alejandro","Mures Domínguez Carlos","Muro González Isaí","Muro Herrado Alberto","Muro Herrada Fernanda Elizabeth","Muro Reyes Naim Ramses","Murrieta Ramírez Dereck Mateo","Muzquiz Treviño Roberta María","Martínez Santos Santiago",
+  "Nava Valdivia Darío","Navarro Sabois Ricardo Ramses","Neri García Denise Valentina","Nevárez Barraza Ivanna","Nevárez Barraza Emmanuel","Nieto Torres Wendy Victoria","Nieves Trejo Aranza Estefanía","Noguez Martínez Alexia M","Núñez Carrera Melissa Pamela","Núñez Carrera Kirle Edit",
+  "Ochoa Miranda Carlos Daniel","Ochoa Muñoz Fernando","Ochoa Muñoz Maximiliano","Oliva Ambriz Isabela","Olvera Macías Yahir","Olvera Sosa Iván Ramiro","Olvera Vázquez Pablo","Olvera Vázquez Santiago Ismael","Olvera Vázquez Daniel","Orenday Durán Jorge Eduardo",
+  "Ornelas Gudiño Paula Renata","Ornelas Gudiño Rafael Alejandro","Ornelas Mata Zarelly Joselin","Ornelas Morales Axel Maximiliano","Ornelas Villa María José","Oropeza Aguilera Daniel","Orozco Aguiñaga Natalia Valentina","Orozco Domínguez Luisa Romina","Orozco González Violeta Guadalupe","Orozco Macías Mariana Victoria",
+  "Orozco Ramírez Luis Daniel","Orozco Ramírez Mauricio","Orozco Ramírez Ximena Sofía","Ortiz Cañeda Alejandra","Ortiz López Aranza Guadalupe","Ortiz Martínez Bruno","Ortega Barrera Mateo","Ortega Barrera Nora Diana","Ortega Barrera Pablo Eugenia","Ortega Gonzalez Ana Maria",
+  "Ovalle González Jesús Armando","Pacheco Serna Ainhoa Fernanda","Pacheco Serna Evelyn Natalia","Padilla García Luciana","Padilla Muñoz Maximiliano","Palacios Coronado Juan Carlos","Parra Ruiz Fernanda","Patiño Avendaño Luisa Mariam","Pavón Martínez Lourdes Mayela","Paz y Puente Torres Eduardo Saúl",
+  "Pedroza Góngora Ángel Mateo","Pedroza Ramírez Oscar Emilio","Peralta Montañez Erika Paola","Pereira Vega Natalia Jezabel","Pereira Vega Raúl Mateo","Pérez Adán Aldo Isaac","Pérez Basurto Axel Fernando","Pérez Gutiérrez Manuel Gerardo","Pérez Martínez Andrey","Pérez Martínez Rafael Antonio",
+  "Pérez Medina Esgary","Pérez Medina Farys","Pérez Moreno David Alejandro","Pérez Navarro Jesús Alejandro","Pérez Navarro Luis Enrique","Pérez Pérez Allison Mía","Pérez Pérez África Amaya","Pérez Prieto Rafael","Pérez Rincón Ricardo Salim","Pérez Valtierra Adrián",
+  "Pérez Valtierra José Arturo","Pérez Yáñez Rebeca","Pérez Zepeda Emma Alejandra","Pineda Moreno Juan Pablo","Pineda Moreno Fátima Valentina","Pineda Peña Mariana","Pinet Garza Pablo","Ponce García Constanza","Ponce Montoya Jaime Adrián","Preciado Salas Paula Alejandra",
+  "Puebla Aguillon José Carlos","Puga Torres Eva Yaretzi","Puga Torres Iker Yadiel","Quezada Silva Juan Pablo","Quezada Patiño Diego Gael","Quezada Reyes Pedro","Quezada Silva Matteo","Quintanar Santacruz Jesús","Ramírez Barrera Regina","Ramirez Barrera Romina",
+  "Ramírez Becerra Dayana Nicole","Ramírez De Luna Katherine Lucero","Ramirez Fernández Dario","Ramírez Garcia Anthony Gael","Ramírez Gutiérrez Maite Amayrani","Ramírez Gutierrez Melannie Valentina","Ramírez Jiménez Enrique","Ramírez Juárez Zoe Renata","Ramírez Marin Ricardo Irving","Ramírez Marín Regina",
+  "Ramírez Montoya David","Ramírez Navarro José Andrés","Ramírez Pedraza Roberto Carlos","Ramírez Sánchez Franco","Ramos Díaz Luis Javier","Ramos Martínez Edgar Rafael","Rangel Loza Ángela Isabel","Rangel Loza Gustavo Alberto","Rangel Martínez Diego Alexander","Regalado Salas Omar Emiliano",
+  "Regalado Salas Santiago Farid","Reinoso Mercado Luis Antonio","Rendón Esquivel Jimena","Rendón Esquivel Eduardo","Rentería Pérez Sergio Manuel","Rentería Pérez Mateo","Requenes Yerik Anatoly","Reyes Cervantes Erick Aaron","Reyes Elías Fernanda Yamileth","Reyes Elias Atziri Getsemani",
+  "Reyes Elias Zoe Itzayana","Reyes Hernández Fernando Mateo","Reyes Herrera Ihan Josue","Reyes Macias Sofía","Reyes Martínez Milan","Reyes Patiño Alexander","Reyes Ramos Dora Camila","Reyes Reyes Oliver Mateo","Reyes Rosas Carlos Santiago","Reynel González Alejandro",
+  "Reynel González Isabella","Reynoso Ramírez Lidia Karolaine","Rivera Cabrera Santino Tarig","Rios García Renata Valentina","Rivera Hernández Ashley Montserrat","Rios Martinez Jose Sebastián","Rivera Rodriguez Valeria Sofia","Robles Becerra Ariadne Yamileth","Robles Becerra Camila Geraldine","Robles Islas Leonel",
+  "Rocha Jara Elena","Rocha Jara Sebastián","Rodea Martínez Roberto Emilio","Rodríguez Cárdenas Ana Sofia","Rodríguez Chávez Santiago","Rodríguez De la Rosa Esteban","Rodríguez Diaz Jafet Itamar","Rodríguez Esparza Luis Santiago","Rodríguez Esparza Daleyssa","Rodríguez Esparza Brian André",
+  "Rodríguez Flores Daniela Alejandra","Rodríguez Gadea Jorge Esteban","Rodríguez García Miguel Ángel","Rodríguez Gutiérrez Eric Gadiel","Rodríguez Hernández Franco","Rodríguez Hernández Paulina Jazmín","Rodríguez Jiménez Meredith Mabell","Rodríguez Jiménez Cristian Eduardo","Rodríguez Jiménez Dana Gisell","Rodríguez Lopez Leonardo Alexander",
+  "Rodríguez L Cristia Josue","Rodríguez Mata Alan Sebastián","Rodríguez Muñoz Juan Manuel","Rodríguez Neri Zoe","Rodríguez Pedroza José María","Rodríguez Ramírez Manuel","Rodríguez Romero Jennifer","Rodríguez Romero Jaqueline","Rodríguez Santillan Nefertity","Rodríguez Serna Julieta",
+  "Rodríguez Tello Alice Cristina","Rodríguez Tello Sofía Alejandra","Rodríguez Vázquez Victoria","Rodríguez Vázquez Víctor Leonardo","Rodríguez Villalobos Hyram Elías","Rodríguez Villalobos Daniela","Rojas Ruiz Ximena Michelle","Romero Delgado Estrella Guadalupe","Romero Escobar Leonardo Gael","Romero Pedroza Dominick Alexander",
+  "Romo González Tadeo Jahel","Romo Herrera Natalia Isabella","Romo Lopez Óscar Alejandro","Romo Saucedo Michael Tadeo","Romo Segura Zoe","Romo Valtierra Victoria","Roque Colin Astrid Azul","Roqueñi Salado Martha","Rosales Balderas Rommel","Rosales Iturriaga Fátima",
+  "Rosales Rodríguez Nathalia Romanela","Rosales Solorzano Caeli Yaritza","Rosales Torres Karol Emanuel","Rosales Vázquez Jerónimo","Rosales Vázquez Maria Andrea","Ruvalcaba De Luna Juan Gerardo","Rubio Aranda Evelyn Xareni","Rubio Aranda Ethan Francisco","Rubio Caretta Gustavo","Rubio Caretta Giovanna",
+  "Rubio Medina Aaliyah","Ruiz Alfaro Iker","Ruiz Alfaro Mabel","Ruiz Cruz Martha Vanessa","Ruiz Esparza Eric","Ruiz Esparza Isaac","Ruiz Esparza Daniel","Ruiz Esparza Jade Mayte","Ruiz Esparza David","Ruiz Esparza Gómez Ana Paula",
+  "Ruiz Leos Yesenia Nataly","Ruiz Vázquez Jonathan Iván","Ruvalcaba Amezcua Leonardo David","Ruvalcaba Cruz Luis Ángel","Ruvalcaba Cruz Valentin de Jesús","Ruvalcaba Hernández Santiago","Ruvalcaba Hernández Victoria","Romo Carlos Jose Miguel","Salas Campos Miriam","Salas Cruz Alexander",
+  "Salas Muñoz Fabián Emmanuel","Salas Suarez Fabián Alejandro","Salas Tiscareño Jayden Ramses","Salazar López César Isac","Salazar Muñoz Kendra","Salgado Pérez Juan Alberto","Saldivar García Carlos Daniel","Sánchez Ávila José Isaac","Sanchez Colunga Mario","Sánchez De Alba Rodrigo",
+  "Sánchez De la Cruz Nadia Ivonne","Sánchez Gozain Abby","Sánchez Gil Roselyn","Sánchez Ibarra Ian Matías","Sánchez Montes Romina Isabela","Sánchez Morcho Erik Elías","Sánchez Rodríguez Erwin Mathias","Sánchez Rosales Esther Victoria","Sánchez Santacruz Aranza M","Sánchez Vázquez Abigail",
+  "Sánchez Ávila Enrique","Sandate Delgadillo Cristal Montserrat","Sandoval Avelar Juan Gerardo","Sandoval Escobedo Elías","Sandoval Medina Helena","Sandoval Peña Elian","Sandoval Vázquez Franco Jeshua","Santana Rubio Aime Montserrat","Santillan Arellano Aaron Alexis","Santos Gutierrez Sara Lucia",
+  "Santos Torres Alexa Guadalupe","Santoyo Sánchez Arantza Camila","Sapien Pérez Diego","Saucedo Ramírez Samantha de Rebeca","Segovia López Milan Sebastián","Seoane Zermeño Nacim","Serna Diaz José Luis","Serna Pérez Maria José","Serna Rubalcava Anthony Mateo","Silva González Rafael",
+  "Silva Torres José Carlos","Silva Sánchez Luis Armando","Silva Sánchez Camila Guadalupe","Soledad Leyva Emilio","Soledad Pérez Karol Abigail","Solis de la Cruz Zoe Adali","Solis Flores Damián Alejandro","Sosa Herrera Francisco Javier","Suarez Alonso Elisa Mariana","Sucrez Gallegos Juan Pablo",
+  "Suarez Gallegos Luis Gabriel","Shepherd Cruz Meritxell","Sánchez Rosales Paula Daniela","Tabarez Torres Jonathan Alexander","Tabarez Torres Fernanda Kaori","Tapia Diaz Katherin Aitana","Tavares Llanas Elías Francisco","Terrones López Alison","Torres Mercado Elisa Montserrat","Torres Mercado Derek Ivan",
+  "Trujillo Mora Axel Dali","Torres Monrreal Aleyda Janeth","Torres Moreno Renata","Torres Pedroza Valeria Guadalupe","Torres Ramirez Abril","Torres Ubario Karla Valentina","Valadez Arevalo Heidi Yaretzi","Valadez Valerie","Valdez Jiménez Dana Renata","Valdez Smith Mac Donald Lucia",
+  "Valencia Ruelas Maya Jatzibe","Valenzuela Miguel Angel","Vallejo Valadez Allen Decker","Valtierra Macias Ricardo Alejandro","Van Riessen González Diego","Varela Casas Regina","Varela Ramírez Ariadne Itzae","Vargas Iñiguez Ximena","Vargas Luna Juana Sarahy","Vargas Ruvalcaba Víctor Rene",
+  "Vasquez Salas Sara Renata","Varyes Barcenas Alberto Leonel","Vazquez Correa Neli Yoselin","Vazquez Moreno Paulina","Vazquez Salas Sara Renata","Vazquez Salas Debani Fernanda","Vazquez Hernández Nahum Aaron","Vázquez Jiménez América Roberta","Vázquez Mata Christian Jesús","Vega Aguilera Joaquín",
+  "Vega Aguilera Alejandro","Vega Ramírez Mónica Daniela","Velazquez Buendia Rafael Velazquez","Velazquez Parada Salvador","Velazquez Parada Ana Valme","Velazquez Parada Fátima","Veloz Macias Montserrath Guadalupe","Venegas Vargas Fernanda Sofia","Ventura Ibarra Edgar","Vera Delgadillo Kristian",
+  "Vera Delgadillo Karen","Villalobos Rangel Jonathan M","Villalpando González Ángel Eduardo","Villalpando González Xiama Yexamile","Villamil Cabrera Angel","Villamil Cabrera Cesar A","Villanueva Romero Lucio André",
+];
+
 let PAX_EXTRA=[];
+
+// ── COLORES POR TRATAMIENTO ───────────────────────────────
+const TX_COL={
+  CON:{bg:'#d1fae5',tc:'#065f46',bc:'#6ee7b7',label:'Consulta'},
+  EXT:{bg:'#fee2e2',tc:'#b91c1c',bc:'#fca5a5',label:'Extracción'},
+  IV:{bg:'#ede9fe',tc:'#6d28d9',bc:'#c4b5fd',label:'Sedación IV'},
+  TXCA:{bg:'#dbeafe',tc:'#1d4ed8',bc:'#93c5fd',label:'Tx Conducto+Corona'},
+  CA:{bg:'#fef9c3',tc:'#92400e',bc:'#fde68a',label:'Corona Acero'},
+  MESP:{bg:'#fce7f3',tc:'#9d174d',bc:'#f9a8d4',label:'Mantenedor Espacio'},
+  ORT:{bg:'#ffedd5',tc:'#9a3412',bc:'#fdba74',label:'Ortodoncia'},
+  SF:{bg:'#f0fdf4',tc:'#166534',bc:'#86efac',label:'Sellador'},
+  RES:{bg:'#f0f9ff',tc:'#075985',bc:'#7dd3fc',label:'Resina'},
+  REV:{bg:'#f8fafc',tc:'#334155',bc:'#cbd5e1',label:'Revisión'},
+  DUR:{bg:'#f0fdfa',tc:'#115e59',bc:'#5eead4',label:'Fluoruro'},
+  UL:{bg:'#faf5ff',tc:'#581c87',bc:'#d8b4fe',label:'Limpieza UL'},
+  'TX CEL':{bg:'#fff1f2',tc:'#9f1239',bc:'#fda4af',label:'Tx Especial'},
+};
+function txChip(tx){
+  const c=TX_COL[tx]||{bg:'#f1f5f9',tc:'#475569',bc:'#e2e8f0'};
+  return`<span style="display:inline-block;padding:2px 8px;border-radius:99px;font-size:8px;font-weight:700;background:${c.bg};color:${c.tc};border:1px solid ${c.bc};white-space:nowrap;">${tx}</span>`;
+}
+
+// ── DOCTORES ──────────────────────────────────────────────
+const DOCTORS={
+  DR01:{name:'Dra. Andrea Villarreal',code:'DR01',col:'#2563eb'},
+  DR02:{name:'Dr. Residente',code:'DR02',col:'#059669'},
+};
+// Asignar doctor a cada cobro (todos DR01 por ahora, algunos DR02 para demo)
+const DR_OVERRIDE={65:'DR02',66:'DR02',68:'DR02',84:'DR02',86:'DR02'};
+function getDr(id){return DR_OVERRIDE[id]||'DR01';}
+
+// ── ESTADO SELECCIÓN ──────────────────────────────────────
+let PAX_SELECTED='Ana Martinez Vega';
+let PAX_TX_FILTER='Todos';
+let PAX_DR_FILTER='Todos';
+
+// ── NOTAS POR PACIENTE ────────────────────────────────────
+const NOTAS_PAX={
+  'Ana Martinez Vega':[
+    {id:1,fecha:'15/05',tx:'TXCA',monto:3200,nota:'3ra sesión tx conducto pieza 36. Cicatrización correcta. Siguiente cita en 2 semanas.',locked:false,dr:'DR01'},
+    {id:2,fecha:'22/04',tx:'MESP',monto:5000,nota:'Anticipo mantenedor de espacio. Toma de impresión realizada. Laboratorio: entrega en 10 días.',locked:true,dr:'DR01'},
+    {id:3,fecha:'14/04',tx:'TX CEL',monto:5000,nota:'Tx celular 2da sesión. Sin complicaciones. Evolución favorable.',locked:true,dr:'DR01'},
+    {id:4,fecha:'08/04',tx:'EXT',monto:1800,nota:'3 extracciones piezas 15,16,17 bajo sedación IV. Sin complicaciones. Indicaciones post-extracción.',locked:true,dr:'DR01'},
+  ],
+  'Maximo Raziel':[
+    {id:1,fecha:'13/05',tx:'IV',monto:1600,nota:'Control de sedación IV. Paciente tolera bien el procedimiento. Sin eventos adversos.',locked:true,dr:'DR01'},
+    {id:2,fecha:'16/01',tx:'IV',monto:1600,nota:'Primera sesión de sedación IV para colocación de implante molar inferior.',locked:true,dr:'DR01'},
+  ],
+  'Alejandro Vega':[
+    {id:1,fecha:'15/05',tx:'ORT',monto:1500,nota:'Control mensual ortodoncia. Ajuste de arco y cambio de ligas. Evolución satisfactoria.',locked:true,dr:'DR01'},
+  ],
+  'Melanie Munoz':[
+    {id:1,fecha:'20/05',tx:'TXCA',monto:2800,nota:'Continuación de tx conducto. 3ra sesión. Sin signos de infección.',locked:true,dr:'DR01'},
+  ],
+};
 
 // ═══════════════════════════ CÁLCULOS ═══════════════════════
 function calcPaxMap(){
   const m={};
+  // 1. Seed all 897 patients from master list
+  PAX_LISTA.forEach(n=>{
+    m[n]={name:n,abono:0,costo:0,visitas:0,lastTx:'—',lastFecha:'—',lastMes:'—',saldo:0,txs:{},dr:'DR01',enLista:true};
+  });
+  // 2. Overlay real payment data from PAGOS
   PAGOS.forEach(r=>{
     const n=r[2];
-    if(!m[n])m[n]={name:n,abono:0,costo:0,visitas:0,lastTx:r[3],lastFecha:r[1],lastMes:r[10],saldo:0};
+    if(!m[n])m[n]={name:n,abono:0,costo:0,visitas:0,lastTx:'—',lastFecha:'—',lastMes:'—',saldo:0,txs:{},dr:'DR01',enLista:false};
     m[n].abono+=r[7];m[n].costo+=r[6];m[n].visitas++;
     m[n].lastTx=r[3];m[n].lastFecha=r[1];m[n].lastMes=r[10];m[n].saldo+=r[8];
+    if(!m[n].txs[r[3]])m[n].txs[r[3]]=0;m[n].txs[r[3]]+=r[7];
+    m[n].dr=getDr(r[0]);
   });
-  PAX_EXTRA.forEach(p=>{if(!m[p.nombre])m[p.nombre]={name:p.nombre,abono:0,costo:0,visitas:0,lastTx:p.motivo,lastFecha:'nuevo',lastMes:'—',saldo:0};});
-  return Object.values(m).sort((a,b)=>b.abono-a.abono);
+  // 3. PAX_EXTRA (nuevos registrados en sesión)
+  PAX_EXTRA.forEach(p=>{
+    if(!m[p.nombre])m[p.nombre]={name:p.nombre,abono:0,costo:0,visitas:0,lastTx:p.motivo,lastFecha:'nuevo',lastMes:'—',saldo:0,txs:{},dr:p.dr||'DR01',enLista:false};
+  });
+  // Sort: con cobros primero, luego alfabético
+  return Object.values(m).sort((a,b)=>{
+    if(b.visitas!==a.visitas)return b.visitas-a.visitas;
+    return a.name.localeCompare(b.name,'es');
+  });
 }
 function calcT(){
   const ing=PAGOS.reduce((s,r)=>s+r[7],0);
@@ -681,7 +848,7 @@ function topFormas(){
   return Object.entries(m).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({label:labels[k]||k,val:v,pct:Math.round(v/tot*100)}));
 }
 function updateMeta(){
-  document.getElementById('reg-count').textContent=PAGOS.length+' registros';
+  document.getElementById('reg-count').textContent=PAGOS.length+' cobros · '+(PAX_LISTA.length+PAX_EXTRA.length)+' pacientes';
   fillDatalist();
 }
 
@@ -727,8 +894,9 @@ function openAbono(pacName,saldo){
   openModal('m-abono');
 }
 function fillDatalist(){
-  const names=calcPaxMap().map(p=>`<option value="${p.name}">`).join('');
-  ['dl-pax','dl-pax2'].forEach(id=>{const d=document.getElementById(id);if(d)d.innerHTML=names;});
+  const allNames=[...PAX_LISTA,...PAX_EXTRA.map(p=>p.nombre)];
+  const opts=allNames.map(n=>`<option value="${n.replace(/"/g,'&quot;')}">`).join('');
+  ['dl-pax','dl-pax2'].forEach(id=>{const d=document.getElementById(id);if(d)d.innerHTML=opts;});
 }
 
 // ═══════════════════════════ AUTOFILL ═══════════════════════
@@ -774,15 +942,18 @@ function saveCita(){
 function savePaciente(){
   const nombre=document.getElementById('p-nombre').value.trim();
   if(!nombre){toast('⚠ Escribe el nombre del paciente','#dc2626');return;}
+  const drEl=document.getElementById('p-dr');
   const obj={
     nombre,
     tel:document.getElementById('p-tel').value.trim(),
     edad:document.getElementById('p-edad').value,
     email:document.getElementById('p-email').value.trim(),
     motivo:document.getElementById('p-motivo').value,
-    notas:document.getElementById('p-notas').value
+    notas:document.getElementById('p-notas').value,
+    dr:drEl?drEl.value:'DR01'
   };
   PAX_EXTRA.push(obj);
+  PAX_SELECTED=nombre;
   closeModal('m-paciente');
   toast('✓ Paciente registrado: '+nombre);
   if(PAGE==='patients')go('patients');
@@ -830,9 +1001,10 @@ function saveNota(){
   const monto=parseFloat(document.getElementById('n-monto').value)||0;
   const d=new Date();
   const fecha=(d.getDate()+'').padStart(2,'0')+'/'+(d.getMonth()+1+'').padStart(2,'0');
-  NOTAS_EXP.unshift({id:NOTAS_EXP.length+1,fecha,tx,monto,nota:texto,locked:false});
+  if(!NOTAS_PAX[PAX_SELECTED])NOTAS_PAX[PAX_SELECTED]=[];
+  NOTAS_PAX[PAX_SELECTED].unshift({id:Date.now(),fecha,tx,monto,nota:texto,locked:false,dr:'DR01'});
   closeModal('m-nota');
-  toast('✓ Nota clínica guardada');
+  toast('✓ Nota guardada en expediente de '+PAX_SELECTED);
   if(PAGE==='expediente'){ETAB='notas';go('expediente');}
 }
 function saveAbono(){
@@ -852,7 +1024,8 @@ function saveAbono(){
   if(PAGE==='payments'||PAGE==='dashboard')go(PAGE);
 }
 function lockNota(i){
-  NOTAS_EXP[i].locked=true;
+  if(!NOTAS_PAX[PAX_SELECTED])return;
+  NOTAS_PAX[PAX_SELECTED][i].locked=true;
   toast('🔒 Nota firmada y bloqueada');
   document.getElementById('etab-body').innerHTML=rEtabBody();
 }
@@ -895,7 +1068,7 @@ function buildSidebar(){
     </button>`).join('');
 }
 function go(p){
-  PAGE=p;ETAB='odonto';COBROS_FILTER='Todos';PAX_SEARCH='';
+  PAGE=p;ETAB='odonto';COBROS_FILTER='Todos';PAX_SEARCH='';PAX_TX_FILTER='Todos';PAX_DR_FILTER='Todos';
   // close mobile sidebar
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('sb-overlay').classList.remove('open');
@@ -1045,117 +1218,191 @@ function verCita(id){
 // ── PACIENTES ──────────────────────────────────────────────
 function rPax(){
   const PL=calcPaxMap();
+  const txOptions=['Todos',...Object.keys(TX_COL)];
   return`
 <div class="row-hd">
   <div><div class="page-title">Pacientes</div>
-  <div class="page-sub">${PL.length} pacientes únicos · datos reales 2025</div></div>
+  <div class="page-sub">${PAX_LISTA.length + PAX_EXTRA.length} pacientes registrados · ${calcPaxMap().filter(p=>p.visitas>0).length} con cobros</div></div>
   <div style="display:flex;gap:7px;flex-wrap:wrap;">
-    <button class="btn btn-o" onclick="exportPacientes()">⬇ Exportar CSV</button>
+    <button class="btn btn-o" onclick="exportPacientes()">⬇ CSV</button>
     <button class="btn btn-p" onclick="openNuevoPaciente()">👥 + Nuevo paciente</button>
   </div>
 </div>
-<div style="display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center;">
-  <div class="srch"><input type="text" id="srch-pax" placeholder="Buscar paciente..." value="${PAX_SEARCH}"
-    oninput="PAX_SEARCH=this.value;renderPaxTable()"></div>
-  ${['Todos','Con saldo','Mayo','Abril','Frecuentes'].map(f=>`
-    <button class="btn btn-o" style="font-size:9px;padding:4px 9px;" onclick="filtrarPax('${f}')">${f}</button>`).join('')}
+
+<!-- FILTROS -->
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:11px;">
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+    <div style="flex:1;min-width:160px;">
+      <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Buscar paciente</div>
+      <div class="srch" style="width:100%;"><input type="text" id="srch-pax" placeholder="Nombre..." style="width:100%;" value="${PAX_SEARCH}"
+        oninput="PAX_SEARCH=this.value;renderPaxTable()"></div>
+    </div>
+    <div style="flex:1;min-width:140px;">
+      <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Tratamiento</div>
+      <select onchange="PAX_TX_FILTER=this.value;renderPaxTable()" style="width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:10px;font-family:inherit;outline:none;">
+        ${txOptions.map(t=>`<option value="${t}" ${PAX_TX_FILTER===t?'selected':''}>${t==='Todos'?'— Todos los tratamientos —':TX_COL[t]?.label||t}</option>`).join('')}
+      </select>
+    </div>
+    <div style="flex:1;min-width:130px;">
+      <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Doctor</div>
+      <select onchange="PAX_DR_FILTER=this.value;renderPaxTable()" style="width:100%;padding:7px 10px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:10px;font-family:inherit;outline:none;">
+        <option value="Todos" ${PAX_DR_FILTER==='Todos'?'selected':''}>— Todos los doctores —</option>
+        ${Object.values(DOCTORS).map(d=>`<option value="${d.code}" ${PAX_DR_FILTER===d.code?'selected':''}>${d.name}</option>`).join('')}
+      </select>
+    </div>
+    <div>
+      <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Filtros rápidos</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        ${['Todos','Con cobros','Con saldo','Sin cobros','Frecuentes'].map(f=>`
+          <button class="btn btn-o" style="font-size:9px;padding:3px 9px;" onclick="filtrarPax('${f}')">${f}</button>`).join('')}
+      </div>
+    </div>
+  </div>
 </div>
+
 <div class="card">
   <table>
-    <thead><tr><th>#</th><th>Paciente</th><th>Visitas</th><th>Último Tx</th><th>Mes</th><th>Saldo</th><th>Total pagado</th><th></th></tr></thead>
+    <thead><tr>
+      <th>#</th><th>Paciente</th><th>Doctor</th><th>Visitas</th>
+      <th>Tratamientos</th><th>Último mes</th><th>Saldo</th><th>Total</th><th></th>
+    </tr></thead>
     <tbody id="pax-tbody"></tbody>
   </table>
 </div>`;
 }
+
 function renderPaxTable(){
-  const PL=calcPaxMap();
-  let list=PAX_SEARCH?PL.filter(p=>p.name.toLowerCase().includes(PAX_SEARCH.toLowerCase())):PL;
+  let PL=calcPaxMap();
+  if(PAX_SEARCH)PL=PL.filter(p=>p.name.toLowerCase().includes(PAX_SEARCH.toLowerCase()));
+  if(PAX_TX_FILTER&&PAX_TX_FILTER!=='Todos')PL=PL.filter(p=>p.txs&&p.txs[PAX_TX_FILTER]);
+  if(PAX_DR_FILTER&&PAX_DR_FILTER!=='Todos')PL=PL.filter(p=>PAGOS.some(r=>r[2]===p.name&&getDr(r[0])===PAX_DR_FILTER));
+  const isFiltered=PAX_SEARCH||PAX_TX_FILTER!=='Todos'||PAX_DR_FILTER!=='Todos';
+  renderTableData(isFiltered?PL:PL.slice(0,150), isFiltered?'filter':'Todos');
+}
+
+function filtrarPax(f){
+  PAX_SEARCH=''; PAX_TX_FILTER='Todos'; PAX_DR_FILTER='Todos';
+  const srch=document.getElementById('srch-pax');
+  if(srch)srch.value='';
+  let PL=calcPaxMap();
+  if(f==='Con cobros')PL=PL.filter(p=>p.visitas>0);
+  else if(f==='Sin cobros')PL=PL.filter(p=>p.visitas===0);
+  else if(f==='Con saldo')PL=PL.filter(p=>p.saldo>0);
+  else if(f==='Frecuentes')PL=PL.filter(p=>p.visitas>=3);
+  // else Todos → show all but limit to 100 for performance
+  renderTableData(f==='Todos'?PL.slice(0,100):PL, f);
+}
+
+function renderTableData(list, label){
   const tbody=document.getElementById('pax-tbody');
   if(!tbody)return;
-  tbody.innerHTML=list.map((p,i)=>`<tr style="cursor:pointer;">
-    <td style="font-size:9px;color:#cbd5e1;">${i+1}</td>
-    <td onclick="go('expediente')"><div style="display:flex;gap:8px;align-items:center;">${AV(p.name,28,i)}
-      <div><div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
-      <div style="font-size:8px;color:#94a3b8;">${p.visitas} visita${p.visitas>1?'s':''} · ${p.lastFecha}</div></div>
-    </div></td>
-    <td style="text-align:center;font-weight:700;">${p.visitas}</td>
-    <td>${CH(p.lastTx,'blue')}</td>
-    <td>${CH(p.lastMes,p.lastMes==='Mayo'?'green':p.lastMes==='Abril'?'blue':'gray')}</td>
-    <td>${p.saldo>0?`<span style="font-weight:700;color:#dc2626;">${F(p.saldo)}</span>`:
-         p.saldo<0?`<span style="color:#d97706;">Anticipo</span>`:
-         '<span style="color:#94a3b8;">—</span>'}</td>
-    <td style="font-size:11px;font-weight:900;color:#059669;">${F(p.abono)}</td>
-    <td>
-      <div style="display:flex;gap:4px;">
-        <button class="btn btn-o" style="font-size:8px;padding:3px 7px;" onclick="go('expediente')">Ver</button>
-        ${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:3px 7px;" onclick="openAbono('${p.name.replace(/'/g,"\\'")}',${p.saldo})">Abono</button>`:''}
-      </div>
-    </td>
-  </tr>`).join('');
+  if(list.length===0){
+    tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:24px;color:#94a3b8;font-size:11px;">Sin resultados</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=list.map((p,i)=>{
+    const dr=DOCTORS[p.dr]||DOCTORS.DR01;
+    const txList=Object.keys(p.txs||{}).slice(0,3).map(t=>txChip(t)).join(' ');
+    const hasCobros=p.visitas>0;
+    return`<tr style="cursor:pointer;${!hasCobros?'opacity:.65':''}" onclick="verExpediente('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">
+      <td style="font-size:9px;color:#cbd5e1;">${i+1}</td>
+      <td>
+        <div style="display:flex;gap:8px;align-items:center;">${AV(p.name,30,i)}
+          <div>
+            <div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
+            <div style="font-size:8px;color:#94a3b8;">${hasCobros?p.visitas+' visita'+(p.visitas>1?'s':'')+' · '+p.lastFecha:'Sin cobros registrados'}</div>
+          </div>
+        </div>
+      </td>
+      <td><span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:${dr.col}15;border:1px solid ${dr.col}30;border-radius:99px;font-size:8px;font-weight:700;color:${dr.col};">${dr.code}</span></td>
+      <td style="text-align:center;font-weight:800;font-size:11px;">${hasCobros?p.visitas:'—'}</td>
+      <td style="max-width:160px;">${txList||'<span style="color:#cbd5e1;font-size:9px;">—</span>'}</td>
+      <td>${hasCobros?CH(p.lastMes,p.lastMes==='Mayo'?'green':p.lastMes==='Abril'?'blue':'gray'):'<span style="color:#e2e8f0;">—</span>'}</td>
+      <td>${p.saldo>0?`<span style="font-weight:700;color:#dc2626;">${F(p.saldo)}</span>`:'<span style="color:#94a3b8;">—</span>'}</td>
+      <td style="font-size:11px;font-weight:900;color:${hasCobros?'#059669':'#e2e8f0'};">${hasCobros?F(p.abono):'—'}</td>
+      <td>
+        <div style="display:flex;gap:4px;">
+          <button class="btn btn-p" style="font-size:8px;padding:3px 8px;" onclick="event.stopPropagation();verExpediente('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">📋</button>
+          ${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:3px 7px;" onclick="event.stopPropagation();openAbono('${p.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;')}',${p.saldo})">💰</button>`:''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('')+
+  (list.length>=100&&label==='Todos'?`<tr><td colspan="9" style="text-align:center;padding:12px;font-size:10px;color:#94a3b8;">Mostrando 100 de ${calcPaxMap().length} · Usa el buscador para filtrar</td></tr>`:'');
 }
-function filtrarPax(f){
-  const PL=calcPaxMap();
-  let list;
-  if(f==='Con saldo')list=PL.filter(p=>p.saldo>0);
-  else if(f==='Mayo')list=PL.filter(p=>p.lastMes==='Mayo');
-  else if(f==='Abril')list=PL.filter(p=>p.lastMes==='Abril');
-  else if(f==='Frecuentes')list=PL.filter(p=>p.visitas>=3);
-  else list=PL;
-  PAX_SEARCH='';
-  const tbody=document.getElementById('pax-tbody');
-  if(tbody)tbody.innerHTML=list.map((p,i)=>`<tr>
-    <td style="font-size:9px;color:#cbd5e1;">${i+1}</td>
-    <td onclick="go('expediente')"><div style="display:flex;gap:8px;align-items:center;">${AV(p.name,28,i)}
-      <div style="font-size:10px;font-weight:700;color:#0f172a;">${p.name}</div>
-    </div></td>
-    <td style="text-align:center;font-weight:700;">${p.visitas}</td>
-    <td>${CH(p.lastTx,'blue')}</td>
-    <td>${CH(p.lastMes,'gray')}</td>
-    <td>${p.saldo>0?`<span style="font-weight:700;color:#dc2626;">${F(p.saldo)}</span>`:'<span style="color:#94a3b8;">—</span>'}</td>
-    <td style="font-size:11px;font-weight:900;color:#059669;">${F(p.abono)}</td>
-    <td><div style="display:flex;gap:4px;">
-      <button class="btn btn-o" style="font-size:8px;padding:3px 7px;" onclick="go('expediente')">Ver</button>
-      ${p.saldo>0?`<button class="btn btn-a" style="font-size:8px;padding:3px 7px;" onclick="openAbono('${p.name.replace(/'/g,"\\'")}',${p.saldo})">Abono</button>`:''}
-    </div></td>
-  </tr>`).join('');
+
+function verExpediente(nombre){
+  PAX_SELECTED=nombre;
+  go('expediente');
 }
 
 // ── EXPEDIENTE ────────────────────────────────────────────
 function rExp(){
   const PL=calcPaxMap();
-  const ana=PL.find(p=>p.name.includes('Ana Martinez'))||PL[0];
+  const pac=PL.find(p=>p.name===PAX_SELECTED)||PL[0];
+  if(!pac)return`<div class="page-title">Paciente no encontrado</div>`;
+  const dr=DOCTORS[pac.dr]||DOCTORS.DR01;
+  const notas=NOTAS_PAX[pac.name]||[];
+  const txList=Object.keys(pac.txs||{});
   return`
+<!-- SELECTOR DE PACIENTE -->
+<div style="background:#fff;border:1px solid #e2e8f0;border-radius:11px;padding:10px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+  <span style="font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;white-space:nowrap;">Expediente de:</span>
+  <select onchange="PAX_SELECTED=this.value;go('expediente')" style="flex:1;min-width:200px;padding:6px 10px;border:1.5px solid #2563eb;border-radius:8px;font-size:11px;font-weight:700;font-family:inherit;outline:none;color:#0f172a;">
+    ${PL.map(p=>`<option value="${p.name}" ${p.name===pac.name?'selected':''}>${p.name}</option>`).join('')}
+  </select>
+  <button class="btn btn-o" style="font-size:9px;" onclick="go('patients')">← Volver a lista</button>
+</div>
+
+<!-- HEADER PACIENTE -->
 <div style="background:linear-gradient(120deg,#eff6ff,#f5f3ff);border:1px solid #dbeafe;border-radius:13px;padding:14px;margin-bottom:10px;">
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    ${AV(ana.name,46,2)}
+  <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+    ${AV(pac.name,50,2)}
     <div style="flex:1;min-width:160px;">
-      <div style="font-size:16px;font-weight:800;color:#0f172a;">${ana.name}</div>
-      <div style="font-size:10px;color:#94a3b8;margin-top:2px;">${ana.visitas} visitas · EXT, TX CEL, TXCA, MESP, CA</div>
-      <div style="display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;">${CH('Paciente frecuente','amber')}${CH('Saldo pendiente','red')}</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px;">
+        <div style="font-size:17px;font-weight:800;color:#0f172a;">${pac.name}</div>
+        <span style="padding:2px 8px;border-radius:99px;background:${dr.col}15;color:${dr.col};font-size:8px;font-weight:700;border:1px solid ${dr.col}30;">${dr.code} · ${dr.name}</span>
+      </div>
+      <div style="font-size:10px;color:#94a3b8;margin-bottom:7px;">${pac.visitas} visitas · ${notas.length} notas clínicas</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        ${txList.map(t=>txChip(t)).join('')}
+        ${pac.saldo>0?CH('Saldo pendiente','red'):''}
+        ${pac.visitas>=3?CH('Paciente frecuente','amber'):''}
+      </div>
     </div>
-    <div style="background:#fff;border-radius:10px;padding:10px 14px;border:1px solid #fecaca;text-align:center;">
+    ${pac.saldo>0?`
+    <div style="background:#fff;border-radius:10px;padding:10px 14px;border:1px solid #fecaca;text-align:center;flex-shrink:0;">
       <div style="font-size:8px;color:#94a3b8;font-weight:700;text-transform:uppercase;">Saldo pendiente</div>
-      <div style="font-size:20px;font-weight:900;color:#dc2626;">${F(Math.max(ana.saldo,0))}</div>
-      <button class="btn btn-a" style="font-size:9px;margin-top:5px;width:100%;" onclick="openAbono('${ana.name.replace(/'/g,"\\'")}',${Math.max(ana.saldo,0)})">Registrar abono</button>
-    </div>
+      <div style="font-size:20px;font-weight:900;color:#dc2626;">${F(Math.max(pac.saldo,0))}</div>
+      <button class="btn btn-a" style="font-size:9px;margin-top:5px;width:100%;" onclick="openAbono('${pac.name.replace(/'/g,"\\'")}',${Math.max(pac.saldo,0)})">Registrar abono</button>
+    </div>`:
+    `<div style="background:#f0fdf4;border-radius:10px;padding:10px 14px;border:1px solid #bbf7d0;text-align:center;flex-shrink:0;">
+      <div style="font-size:8px;color:#94a3b8;font-weight:700;text-transform:uppercase;">Total pagado</div>
+      <div style="font-size:20px;font-weight:900;color:#059669;">${F(pac.abono)}</div>
+      <div style="font-size:8px;color:#059669;margin-top:4px;">✓ Al corriente</div>
+    </div>`}
   </div>
 </div>
-<div class="alert-bar">⚠️ &nbsp;<strong>Alertas:</strong> Saldo pendiente ${F(Math.max(ana.saldo,0))} · ${ana.visitas} visitas registradas · Sin alergias documentadas</div>
+
+${pac.saldo>0?`<div class="alert-bar">⚠️ &nbsp;<strong>Alertas:</strong> Saldo pendiente ${F(Math.max(pac.saldo,0))} · ${pac.visitas} visitas registradas · Sin alergias documentadas</div>`:''}
+
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:7px;">
   <div class="tab-bar">
     <button class="tab ${ETAB==='odonto'?'active':''}" onclick="setEtab('odonto')">🦷 Odontograma</button>
-    <button class="tab ${ETAB==='notas'?'active':''}" onclick="setEtab('notas')">📝 Historial</button>
+    <button class="tab ${ETAB==='notas'?'active':''}" onclick="setEtab('notas')">📝 Historial (${notas.length})</button>
     <button class="tab ${ETAB==='antec'?'active':''}" onclick="setEtab('antec')">📋 Antecedentes</button>
+    <button class="tab ${ETAB==='cobros_pac'?'active':''}" onclick="setEtab('cobros_pac')">💳 Cobros</button>
   </div>
-  <div style="display:flex;gap:6px;">
-    <button class="btn btn-o" onclick="openNuevaCita()">📅 Agendar cita</button>
-    <button class="btn btn-p" onclick="openNotaExp()">📝 + Nueva nota</button>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+    <button class="btn btn-o" onclick="openNuevaCita()">📅 Agendar</button>
+    <button class="btn btn-p" onclick="openNotaExp()">📝 + Nota</button>
+    <button class="btn btn-g" onclick="openCobro()">💳 Cobrar</button>
   </div>
 </div>
 <div id="etab-body">${rEtabBody()}</div>`;
 }
 function setEtab(t){ETAB=t;document.getElementById('etab-body').innerHTML=rEtabBody();}
-function rEtabBody(){return ETAB==='odonto'?rOdonto():ETAB==='notas'?rNotas():rAntec();}
+function rEtabBody(){return ETAB==='odonto'?rOdonto():ETAB==='notas'?rNotas():ETAB==='cobros_pac'?rCobrosPac():rAntec();}
 
 function rOdonto(){
   const TOP=['18','17','16','15','14','13','12','11','21','22','23','24','25','26','27','28'];
@@ -1202,34 +1449,83 @@ function rOdonto(){
   </div>`;}
 
 function rNotas(){
-  return NOTAS_EXP.map((r,i)=>`
+  const notas=NOTAS_PAX[PAX_SELECTED]||[];
+  if(notas.length===0)return`
+  <div style="text-align:center;padding:32px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;">
+    <div style="font-size:30px;margin-bottom:10px;">📝</div>
+    <div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:4px;">Sin notas clínicas</div>
+    <div style="font-size:10px;color:#94a3b8;margin-bottom:14px;">Este paciente aún no tiene notas en su expediente</div>
+    <button class="btn btn-p" onclick="openNotaExp()">+ Agregar primera nota</button>
+  </div>`;
+  return notas.map((r,i)=>`
   <div class="acc-row">
     <div class="acc-head" onclick="toggleAcc('acc${i}','arr${i}')">
-      <div style="display:flex;align-items:center;gap:9px;">
-        <div style="width:3px;height:36px;border-radius:2px;background:#7c3aed;flex-shrink:0;"></div>
-        <div>
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-            <span style="font-size:11px;font-weight:800;color:#0f172a;">${r.fecha}/2025</span>
-            ${CH(r.tx,'blue')}
+      <div style="display:flex;align-items:center;gap:9px;flex:1;min-width:0;">
+        <div style="width:3px;height:36px;border-radius:2px;flex-shrink:0;" style="background:${TX_COL[r.tx]?.bc||'#7c3aed'};"></div>
+        <div style="min-width:0;">
+          <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span style="font-size:10px;font-weight:800;color:#0f172a;">${r.fecha}/2025</span>
+            ${txChip(r.tx)}
             ${r.monto>0?CH(F(r.monto),'green'):''}
-            ${r.locked?CH('🔒 Firmada','gray'):CH('● Editable','blue')}
+            ${r.locked?'<span style="font-size:8px;color:#64748b;">🔒 Firmada</span>':'<span style="font-size:8px;color:#2563eb;">● Editable</span>'}
           </div>
-          <div style="font-size:9px;color:#94a3b8;margin-top:2px;">${r.nota.slice(0,65)}${r.nota.length>65?'...':''}</div>
+          <div style="font-size:9px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.nota.slice(0,70)}${r.nota.length>70?'...':''}</div>
         </div>
       </div>
-      <span id="arr${i}" style="color:#cbd5e1;font-size:11px;flex-shrink:0;transition:transform .2s;display:inline-block;">▼</span>
+      <span id="arr${i}" style="color:#cbd5e1;font-size:11px;flex-shrink:0;transition:transform .2s;display:inline-block;margin-left:8px;">▼</span>
     </div>
     <div class="acc-body" id="acc${i}">
       <p style="font-size:10px;color:#334155;line-height:1.7;margin-bottom:10px;">${r.nota}</p>
+      <div style="font-size:9px;color:#94a3b8;margin-bottom:8px;">Doctor: ${DOCTORS[r.dr||'DR01']?.name||'Dra. Andrea'}</div>
       ${!r.locked?`<div style="display:flex;gap:6px;justify-content:flex-end;">
         <button class="btn btn-o" style="font-size:9px;" onclick="lockNota(${i})">🔒 Firmar y bloquear</button>
         <button class="btn btn-g" style="font-size:9px;" onclick="openCobro()">💳 Registrar cobro</button>
       </div>`:
-      `<div style="font-size:9px;color:#94a3b8;display:flex;align-items:center;gap:5px;">
-        🔒 Nota firmada y bloqueada · No editable</div>`}
+      `<div style="font-size:9px;color:#94a3b8;">🔒 Nota firmada y bloqueada · No editable</div>`}
     </div>
   </div>`).join('')+
-  `<button class="btn btn-o" style="width:100%;margin-top:4px;font-size:10px;" onclick="openNotaExp()">+ Agregar nota clínica</button>`;}
+  `<button class="btn btn-o" style="width:100%;margin-top:6px;font-size:10px;padding:8px;" onclick="openNotaExp()">+ Agregar nota clínica</button>`;}
+
+function rCobrosPac(){
+  const cobros=PAGOS.filter(r=>r[2]===PAX_SELECTED);
+  const tot=cobros.reduce((s,r)=>s+r[7],0);
+  const saldo=cobros.reduce((s,r)=>s+Math.max(r[8],0),0);
+  if(cobros.length===0)return`<div style="text-align:center;padding:32px;background:#fff;border-radius:12px;border:1px solid #e2e8f0;">
+    <div style="font-size:30px;margin-bottom:8px;">💳</div>
+    <div style="font-size:11px;font-weight:700;color:#334155;">Sin cobros registrados</div>
+    <button class="btn btn-g" style="margin-top:12px;" onclick="openCobro()">+ Registrar primer cobro</button>
+  </div>`;
+  return`<div class="card">
+  <div style="padding:10px 12px;background:#f8fafc;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+    <span style="font-size:10px;font-weight:700;color:#0f172a;">${cobros.length} cobros · ${PAX_SELECTED}</span>
+    <div style="display:flex;gap:8px;">
+      <span style="font-size:9px;color:#059669;font-weight:700;">Pagado: ${F(tot)}</span>
+      ${saldo>0?`<span style="font-size:9px;color:#dc2626;font-weight:700;">Saldo: ${F(saldo)}</span>`:'<span style="font-size:9px;color:#059669;">✓ Al corriente</span>'}
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Fecha</th><th>Tratamiento</th><th>Cant</th><th>F.Pago</th><th>Mes</th><th>Saldo</th><th style="text-align:right;">Abono</th></tr></thead>
+    <tbody>
+      ${cobros.map(r=>`<tr>
+        <td style="font-family:monospace;font-size:9px;color:#94a3b8;">${r[1]}</td>
+        <td>${txChip(r[3])}</td>
+        <td style="text-align:center;">${r[4]}</td>
+        <td style="font-size:9px;">${r[9]||'—'}</td>
+        <td>${CH(r[10],'gray')}</td>
+        <td>${r[8]>0?`<span style="font-weight:700;color:#dc2626;">${F(r[8])}</span>`:'<span style="color:#94a3b8;">—</span>'}</td>
+        <td style="text-align:right;font-weight:800;color:#059669;">${F(r[7])}</td>
+      </tr>`).join('')}
+    </tbody>
+    <tfoot><tr style="background:#f0fdf4;border-top:2px solid #e2e8f0;">
+      <td colspan="6" style="font-size:10px;font-weight:700;color:#334155;">Total</td>
+      <td style="text-align:right;font-size:13px;font-weight:900;color:#059669;">${F(tot)}</td>
+    </tr></tfoot>
+  </table>
+  <div style="padding:10px 12px;">
+    <button class="btn btn-g" style="width:100%;font-size:10px;" onclick="openCobro()">💳 + Registrar nuevo cobro</button>
+  </div>
+</div>`;}
+
 
 function toggleAcc(bodyId,arrId){
   const b=document.getElementById(bodyId),a=document.getElementById(arrId);
@@ -1300,7 +1596,7 @@ function renderCobros(data){
         <td style="font-size:9px;color:#cbd5e1;font-family:monospace;">${r[0]}</td>
         <td style="font-family:monospace;font-size:9px;color:#94a3b8;">${r[1]}</td>
         <td style="font-weight:700;color:#0f172a;">${r[2]}</td>
-        <td>${CH(r[3],'blue')}</td>
+        <td>${txChip(r[3])}</td>
         <td style="text-align:center;">${r[4]}</td>
         <td>${CH(fpL[r[9]]||r[9]||'—',fpC[r[9]]||'gray')}</td>
         <td>${CH(r[10],'gray')}</td>
